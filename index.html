@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Tyler Buchanan - Portfolio</title>
+    <link rel="stylesheet" href="styles.css?v=72">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Page Transition Styles */
+        .page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1;
+            transform: scale(0.95);
+            background-color: var(--bg-color);
+            transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease, background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Theme toggle stays visible across all pages */
+        .theme-toggle {
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 1001 !important;
+        }
+        
+        /* Home page enters from smaller scale */
+        .home-page {
+            transform-origin: center center;
+        }
+        
+        .home-page.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+            transform: scale(1);
+        }
+        
+        /* About page enters from above with larger scale */
+        #about-page {
+            transform-origin: center top;
+            transform: translateY(-30px) scale(1.1);
+            background-color: var(--bg-color);
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        #about-page.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+            transform: translateY(0) scale(1);
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* About page exits - lifts up (reverse of entry) */
+        #about-page.exiting {
+            opacity: 0;
+            transform: translateY(-30px) scale(1.1);
+        }
+        
+        /* Home page exits - shrinks (only for About page transitions) */
+        .home-page.exiting:not(.exiting-to-project) {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        
+        /* Home page exits differently for project page (no fade) */
+        .home-page.exiting.exiting-to-project {
+            opacity: 1;
+            transition: opacity 0.3s ease 1.5s;
+        }
+        
+        /* Home page enters from below when coming from About (reverse of About entry) */
+        .home-page.entering-from-about {
+            transform-origin: center center;
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+        }
+        
+        .home-page.entering-from-about.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        
+        /* Home page enters normally when coming from project page */
+        .home-page:not(.entering-from-about).active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+            transform: scale(1);
+        }
+        
+        /* Keep carousel visible during transition - no fade, no blink */
+        .home-page.exiting .timeline-carousel {
+            opacity: 1 !important;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        /* Carousel always visible, no opacity changes */
+        .timeline-carousel {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Ensure carousel images stay visible */
+        .timeline-carousel .carousel-image {
+            opacity: 1 !important;
+        }
+        
+        /* Hide carousel after transition completes */
+        #project-page.active ~ #home-page .timeline-carousel {
+            opacity: 1 !important;
+        }
+        
+        /* Home Page */
+        .home-page {
+            overflow: hidden;
+        }
+        
+        /* Timeline Carousel */
+        .timeline-carousel {
+            position: fixed;
+            top: calc(6.5rem + 6rem);
+            left: 50%;
+            transform: translateX(-50%);
+            transform-origin: center bottom;
+            width: 260px;
+            max-width: 260px;
+            z-index: 10;
+        }
+        
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .carousel-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+        
+        .carousel-image:hover {
+            opacity: 0.8 !important;
+        }
+        
+        [data-theme="dark"] .carousel-image.dark-image:hover {
+            opacity: 0.8 !important;
+        }
+        
+        .carousel-image.light-image {
+            opacity: 1 !important;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .carousel-image.dark-image {
+            opacity: 0 !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        [data-theme="dark"] .carousel-image.light-image {
+            opacity: 0 !important;
+        }
+        
+        [data-theme="dark"] .carousel-image.dark-image {
+            opacity: 1 !important;
+        }
+        
+        /* Ensure theme switching works for zoomed carousel */
+        .timeline-carousel.zoomed .carousel-image.light-image {
+            opacity: 1 !important;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .timeline-carousel.zoomed .carousel-image.dark-image {
+            opacity: 0 !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        [data-theme="dark"] .timeline-carousel.zoomed .carousel-image.light-image {
+            opacity: 0 !important;
+        }
+        
+        [data-theme="dark"] .timeline-carousel.zoomed .carousel-image.dark-image {
+            opacity: 1 !important;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-carousel {
+                width: 200px;
+                max-width: 200px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .timeline-carousel {
+                width: 150px;
+                max-width: 150px;
+            }
+        }
+        
+        /* Animate home page elements */
+        .home-page.active .name-section,
+        .home-page.active .links-section {
+            animation: fadeInScaleUp 0.25s ease 0.05s both;
+        }
+        
+        /* Don't animate home page elements when coming from project page */
+        .home-page.active:not(.entering-from-about) .name-section,
+        .home-page.active:not(.entering-from-about) .links-section {
+            animation: none;
+        }
+        
+        /* Animate home page elements when coming from About */
+        .home-page.entering-from-about.active .name-section,
+        .home-page.entering-from-about.active .links-section {
+            animation: fadeInFromBelow 0.25s ease 0.05s both;
+        }
+        
+        @keyframes fadeInScaleUp {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Animate about page elements */
+        #about-page.active .about-page-container {
+            animation: fadeInFromAbove 0.25s ease 0.05s both;
+        }
+        
+        #about-page.active .back-button {
+            animation: fadeInFromAbove 0.25s ease 0.02s both;
+        }
+        
+        @keyframes fadeInFromAbove {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(1.1);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Exit animations */
+        #about-page.exiting .about-page-container,
+        #about-page.exiting .back-button {
+            animation: liftOut 0.25s ease both;
+        }
+        
+        @keyframes liftOut {
+            to {
+                opacity: 0;
+                transform: translateY(-30px) scale(1.1);
+            }
+        }
+        
+        .home-page.exiting .name-section,
+        .home-page.exiting .links-section {
+            animation: shrinkOut 0.2s ease both;
+        }
+        
+        @keyframes shrinkOut {
+            to {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+        }
+        
+        /* Home page elements enter from below when coming from About */
+        .home-page.entering-from-about.active .name-section,
+        .home-page.entering-from-about.active .links-section {
+            animation: fadeInFromBelow 0.25s ease 0.05s both;
+        }
+        
+        @keyframes fadeInFromBelow {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* About Page */
+        #about-page {
+            overflow-y: auto;
+        }
+        
+        /* Project Detail Page */
+        #project-page {
+            overflow: hidden;
+        }
+        
+        /* Ensure image stays visible during transition */
+        #project-page .project-image-container {
+            opacity: 1 !important;
+        }
+        
+        .project-page-container {
+            display: flex;
+            height: 100vh;
+            padding: 0 30rem;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .project-left {
+            flex: 0 0 40%;
+            max-width: clamp(300px, 31.25vw, 500px);
+            min-width: 0;
+        }
+        
+        .project-title {
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: clamp(0.3rem, 0.5vw, 0.5rem);
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            line-height: 1.2;
+        }
+        
+        .project-role {
+            font-size: clamp(0.75rem, 0.95vw, 0.95rem);
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem);
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            line-height: 1.3;
+        }
+        
+        .project-design {
+            font-size: clamp(0.75rem, 0.95vw, 0.95rem);
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem);
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            line-height: 1.3;
+        }
+        
+        .project-company {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: 0.15rem;
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            line-height: 1.3;
+        }
+        
+        .project-year {
+            font-size: clamp(0.75rem, 0.95vw, 0.95rem);
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: clamp(1.5rem, 2vw, 2rem);
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            line-height: 1.3;
+        }
+        
+        .project-video-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .project-video-link::before {
+            content: '▶';
+            font-size: 1rem;
+            margin-left: 3px;
+        }
+        
+        .project-video-link:hover {
+            color: var(--text-secondary-hover);
+            border-color: var(--text-secondary-hover);
+        }
+        
+        .project-contributors {
+            display: flex;
+            flex-direction: column;
+            gap: 0.05rem;
+        }
+        
+        .project-contributor {
+            font-size: clamp(0.7rem, 0.875vw, 0.875rem);
+            color: var(--text-secondary);
+            font-weight: 300;
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .project-right {
+            flex: 1;
+            max-width: 60%;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+        
+        .project-right .project-image-container {
+            width: 100%;
+        }
+        
+        .project-image-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px !important;
+            min-width: 0;
+        }
+        
+        @media (max-width: 1600px) {
+            .project-image-container {
+                max-width: 37.5vw !important;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .project-image-container {
+                max-width: 50vw !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .project-image-container {
+                max-width: 100% !important;
+            }
+        }
+        
+        .project-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .project-image.light-image {
+            opacity: 1;
+        }
+        
+        .project-image.dark-image {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        [data-theme="dark"] .project-image.light-image {
+            opacity: 0;
+        }
+        
+        [data-theme="dark"] .project-image.dark-image {
+            opacity: 1;
+        }
+        
+        /* Project detail overlay - same page zoom effect */
+        .project-detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 100;
+            pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        visibility 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background-color: var(--bg-color);
+        }
+        
+        .project-detail-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+        
+        /* Project back button */
+        .project-back-button {
+            opacity: 0;
+            visibility: hidden;
+            z-index: 103;
+            transition: opacity 0.25s ease 0.1s, visibility 0.25s ease 0.1s;
+            pointer-events: none;
+        }
+        
+        .project-detail-overlay.active .project-back-button {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        
+        /* Make image and text not trigger zoom out */
+        .timeline-carousel.zoomed,
+        .project-detail-overlay .project-left {
+            pointer-events: none;
+        }
+        
+        .project-detail-overlay.active .project-left {
+            pointer-events: auto;
+        }
+        
+        /* Project content container */
+        .project-content-container {
+            display: flex;
+            height: 100vh;
+            padding: 0 30rem;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        /* Carousel image zoom effect - smooth transition both ways */
+        .timeline-carousel {
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        bottom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        right 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Calculate: original bottom = 100vh - 12.5rem - 260px */
+        /* For equal padding when scaled: center should be at 50vh */
+        /* So translateY needed = (50vh - scaled_height/2) - (100vh - 12.5rem - 260px - 260px/2) */
+        /* Simplified: translateY = 50vh - scaled_height/2 - 100vh + 12.5rem + 260px + 130px */
+        /* = -50vh - scaled_height/2 + 12.5rem + 390px */
+        
+        .timeline-carousel.zoomed {
+            position: fixed !important;
+            top: calc(6.5rem + 6rem) !important;
+            left: calc(50% + 6rem) !important;
+            transform-origin: center bottom !important;
+            transform: translateX(-50%) scale(1.25) !important;
+            z-index: 101 !important;
+            width: 260px !important;
+            pointer-events: none;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .timeline-carousel.zoomed .carousel-image {
+            width: 100%;
+            height: auto;
+        }
+        
+        /* Ensure theme switching works for zoomed carousel images */
+        .timeline-carousel.zoomed .carousel-image.light-image {
+            opacity: 1 !important;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .timeline-carousel.zoomed .carousel-image.dark-image {
+            opacity: 0 !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        [data-theme="dark"] .timeline-carousel.zoomed .carousel-image.light-image {
+            opacity: 0 !important;
+        }
+        
+        [data-theme="dark"] .timeline-carousel.zoomed .carousel-image.dark-image {
+            opacity: 1 !important;
+        }
+        
+        /* Project text appears beside zoomed image - equal horizontal padding */
+        .project-detail-overlay .project-left {
+            position: fixed;
+            left: 30rem;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            max-width: 500px;
+            z-index: 102;
+            transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s;
+            pointer-events: none;
+            padding-right: 0;
+            margin-right: 1rem;
+        }
+        
+        .project-detail-overlay.active .project-left {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Smooth fade out for text when zooming out */
+        .project-detail-overlay:not(.active) .project-left {
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Hide home page elements when zoomed */
+        .home-page.zoomed .name-section,
+        .home-page.zoomed .links-section {
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        /* Ensure smooth reverse transition */
+        .home-page:not(.zoomed) .name-section,
+        .home-page:not(.zoomed) .links-section {
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) 0.2s;
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+        }
+        
+        
+        @media (max-width: 768px) {
+            .project-page-container {
+                flex-direction: column;
+                padding: 4rem 5.5rem;
+                gap: 3rem;
+            }
+            
+            .project-left {
+                flex: 1;
+                max-width: 100%;
+            }
+            
+            .project-right {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .project-image-container {
+                max-width: 100% !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .project-page-container {
+                padding: 2.5rem 3.5rem;
+            }
+        }
+        
+        /* Dark Mode Variables */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-secondary: #888888;
+            --text-secondary-hover: #000000;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --text-secondary: #888888;
+            --text-secondary-hover: #ffffff;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Smooth transitions for all elements that change with theme */
+        * {
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Exclude elements that shouldn't transition */
+        img, svg, canvas, video, iframe {
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 3rem;
+            right: 4rem;
+            z-index: 1000;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            line-height: 1;
+            width: 1.75rem;
+            height: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            color: var(--text-secondary-hover);
+        }
+        
+        .theme-toggle .sun-icon,
+        .theme-toggle .moon-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: inline-block;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+        
+        .theme-toggle .sun-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+        
+        .theme-toggle .moon-icon {
+            opacity: 0;
+            transform: rotate(-90deg) scale(0);
+        }
+        
+        [data-theme="dark"] .theme-toggle .sun-icon {
+            opacity: 0;
+            transform: rotate(90deg) scale(0);
+        }
+        
+        [data-theme="dark"] .theme-toggle .moon-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+        
+        /* About Page Styles */
+        .back-button {
+            position: fixed;
+            top: 3rem;
+            left: 4rem;
+            z-index: 1000;
+            font-size: 1.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+        }
+        
+        .back-button:hover {
+            color: var(--text-secondary-hover);
+        }
+        
+        .about-page-container {
+            display: flex;
+            min-height: 100vh;
+            padding: 6.5rem 12rem;
+            gap: 4rem;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center top;
+            background-color: var(--bg-color);
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .about-left {
+            flex: 0 0 auto;
+            max-width: 350px;
+            background-color: transparent;
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .about-right {
+            flex: 0 0 auto;
+            max-width: 35%;
+            width: 35%;
+            height: 35vh;
+            min-height: 35vh;
+            background-color: transparent;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+            position: relative;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        #about-page.active .about-right {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: flex !important;
+        }
+        
+        .about-paragraph {
+            font-size: 0.8rem;
+            line-height: 1.3;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            font-weight: 400;
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .about-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.05rem;
+        }
+        
+        .email-link,
+        .about-link {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 300;
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: inline-block;
+        }
+        
+        .email-link:hover,
+        .about-link:hover {
+            color: var(--text-secondary-hover);
+        }
+        
+        .about-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            min-width: 200px;
+            min-height: 200px;
+            object-fit: contain;
+            object-position: center;
+            filter: grayscale(100%);
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        #about-page.active .about-image {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+        
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 2rem;
+                right: 2.5rem;
+            }
+            
+            .theme-toggle .sun-icon,
+            .theme-toggle .moon-icon {
+                font-size: 1.2rem;
+            }
+            
+            .back-button {
+                top: 2rem;
+                left: 2.5rem;
+                font-size: 1.5rem;
+            }
+            
+            .about-page-container {
+                flex-direction: column;
+                padding: 4rem 5.5rem;
+                gap: 3rem;
+            }
+            
+            .project-page-container {
+                padding: 4rem 5.5rem;
+            }
+            
+            .about-left {
+                flex: 1;
+                max-width: 100%;
+            }
+            
+            .about-right {
+                width: 100%;
+                height: 35vh;
+            }
+            
+            .project-image-container {
+                max-width: 100% !important;
+                min-width: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .theme-toggle {
+                top: 1.5rem;
+                right: 1.5rem;
+            }
+            
+            .theme-toggle .sun-icon,
+            .theme-toggle .moon-icon {
+                font-size: 1.2rem;
+            }
+            
+            .back-button {
+                top: 1.5rem;
+                left: 1.5rem;
+                font-size: 1.5rem;
+            }
+            
+            .about-page-container {
+                padding: 2.5rem 3.5rem;
+            }
+            
+            .project-page-container {
+                padding: 4rem 5.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div id="home-page" class="page home-page active">
+        <!-- Theme Toggle - Top Left -->
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+            <span class="sun-icon">☀</span>
+            <span class="moon-icon">☾</span>
+        </button>
+        
+        <!-- Name and Year - Top Left -->
+        <div class="name-section">
+            <h1 class="name">Tyler Buchanan</h1>
+            <p class="year">2026</p>
+        </div>
+        
+        <!-- Timeline Carousel -->
+        <div class="timeline-carousel">
+            <div class="carousel-container" id="carousel-container">
+                <img src="project-light.png" alt="Aiva Project" class="carousel-image light-image">
+                <img src="project-dark.png" alt="Aiva Project" class="carousel-image dark-image">
+            </div>
+        </div>
+
+        <!-- Links - Top Right -->
+        <nav class="links-section">
+            <a href="#" class="nav-link" data-page="about">About</a>
+            <a href="https://github.com/Buchanz" target="_blank" class="nav-link">GitHub</a>
+            <a href="https://www.linkedin.com/in/tyler-buchanan-b8bb29230" target="_blank" class="nav-link">LinkedIn</a>
+        </nav>
+
+        <!-- Main Content Area - Will hold device mockups later -->
+        <main class="main-content">
+            <!-- Device mockups will go here -->
+        </main>
+        
+        <!-- Project Detail Overlay - Zoom Effect -->
+        <div class="project-detail-overlay" id="project-overlay">
+            <!-- Theme Toggle - Top Right -->
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <span class="sun-icon">☀</span>
+                <span class="moon-icon">☾</span>
+            </button>
+            
+            <!-- Back Button - Top Left -->
+            <a href="#" class="back-button project-back-button" id="project-back-button">‹</a>
+            
+            <!-- Project Content -->
+            <div class="project-content-container">
+                <div class="project-left">
+                    <h2 class="project-title">Aiva</h2>
+                    <p class="project-role">Co-Founder</p>
+                    <p class="project-design">Interface Design</p>
+                    <p class="project-year">2025</p>
+                    
+                    <div class="project-contributors">
+                        <span class="project-contributor">Tyler Buchanan</span>
+                        <span class="project-contributor">Ivan Guo</span>
+                        <span class="project-contributor">Sam Gupta</span>
+                        <span class="project-contributor">Dujin Kim</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" class="page">
+        <!-- Theme Toggle - Top Right -->
+        <button class="theme-toggle" aria-label="Toggle dark mode">
+            <span class="sun-icon">☀</span>
+            <span class="moon-icon">☾</span>
+        </button>
+        
+        <!-- Back Button - Top Left -->
+        <a href="#" class="back-button" data-page="home">‹</a>
+
+        <!-- About Content -->
+        <div class="about-page-container">
+            <div class="about-left">
+                <p class="about-paragraph">
+                    Tyler Buchanan is an entrepreneur and interface designer based in Vancouver, British Columbia. His work can be seen in products from his work with Arceus building Aiva. He is currently working on new projects while extending his education. Outside of design, Tyler spends his free time mountain biking, snowboarding, rock climbing, and birding.
+                </p>
+                <div class="about-links">
+                    <a href="mailto:tyler.buchanan.a@gmail.com" class="email-link">Email</a>
+                    <a href="https://github.com/Buchanz" target="_blank" class="about-link">GitHub</a>
+                    <a href="https://www.linkedin.com/in/tyler-buchanan-b8bb29230" target="_blank" class="about-link">LinkedIn</a>
+                </div>
+            </div>
+            
+            <div class="about-right">
+                <img src="about-image.png?v=4" alt="Tyler Buchanan" class="about-image">
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Detail Page -->
+    <div id="project-page" class="page">
+        <!-- Theme Toggle - Top Right -->
+        <button class="theme-toggle" aria-label="Toggle dark mode">
+            <span class="sun-icon">☀</span>
+            <span class="moon-icon">☾</span>
+        </button>
+        
+        <!-- Back Button - Top Left -->
+        <a href="#" class="back-button" data-page="home">‹</a>
+
+        <!-- Project Content -->
+        <div class="project-page-container">
+            <div class="project-left">
+                <h2 class="project-title">Aiva</h2>
+                <p class="project-role">Co-Founder</p>
+                <p class="project-design">Interface Design</p>
+                <p class="project-year">2025</p>
+                
+                <div class="project-contributors">
+                    <span class="project-contributor">Tyler Buchanan</span>
+                    <span class="project-contributor">Ivan Guo</span>
+                    <span class="project-contributor">Sam Gupta</span>
+                    <span class="project-contributor">Dujin Kim</span>
+                </div>
+            </div>
+            
+            <div class="project-right">
+                <div class="project-image-container">
+                    <img src="project-light.png" alt="Project Detail" class="project-image light-image">
+                    <img src="project-dark.png" alt="Project Detail" class="project-image dark-image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple page transition with animations
+        function showPage(pageId) {
+            console.log('showPage called with:', pageId);
+            // Get all pages
+            const pages = document.querySelectorAll('.page');
+            const currentActive = document.querySelector('.page.active');
+            
+            
+            // Add exiting class to current page
+            if (currentActive) {
+                currentActive.classList.add('exiting');
+                currentActive.classList.remove('active');
+            }
+            
+            // Special handling for transition from About to Home
+            if (pageId === 'home-page' && currentActive && currentActive.id === 'about-page') {
+                const target = document.getElementById(pageId);
+                if (target) {
+                    target.classList.add('entering-from-about');
+                }
+            }
+            
+            // Special handling for transition from Home to About
+            if (pageId === 'about-page' && currentActive && currentActive.id === 'home-page') {
+                // Home page should fade out normally (not marked as exiting-to-project)
+                // This is already handled above
+            }
+            
+            // Delay to allow exit animation to play
+            const delay = currentActive && currentActive.id === 'project-page' ? 1500 : 200;
+            setTimeout(() => {
+                // Remove exiting class from all pages
+                pages.forEach(page => {
+                    page.classList.remove('exiting');
+                    page.classList.remove('entering-from-about');
+                });
+                
+                // Add active class to target page
+                const target = document.getElementById(pageId);
+                if (target) {
+                    target.classList.add('active');
+                    
+                    // Update overflow
+                    if (pageId === 'home-page' || pageId === 'project-page') {
+                        document.body.style.overflow = 'hidden';
+                        document.documentElement.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = 'auto';
+                        document.documentElement.style.overflow = 'auto';
+                    }
+                }
+            }, delay);
+        }
+
+        // Theme toggle functionality
+        function initTheme() {
+            const themeToggles = document.querySelectorAll('.theme-toggle');
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            
+            // Set initial theme
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            
+            // Handle theme toggle clicks on all toggle buttons
+            themeToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            });
+        }
+
+        // Wait for page to load
+        window.addEventListener('load', function() {
+            console.log('Page loaded, setting up event listeners');
+            
+            // Initialize theme
+            initTheme();
+            
+            // Function to zoom out
+            function zoomOut() {
+                const overlay = document.getElementById('project-overlay');
+                const carouselEl = document.querySelector('.timeline-carousel');
+                const homePage = document.getElementById('home-page');
+                
+                if (overlay && carouselEl && homePage) {
+                    overlay.classList.remove('active');
+                    carouselEl.classList.remove('zoomed');
+                    homePage.classList.remove('zoomed');
+                    // Reset manual zoom
+                    carouselEl.style.transform = '';
+                    carouselEl.dataset.manualZoom = '0';
+                }
+            }
+            
+            // Manual scroll zoom control - smooth and controlled, only zoom in on scroll up
+            let manualZoomLevel = 1.0;
+            const minZoom = 1.0;
+            const maxZoom = 1.25;
+            const zoomStep = 0.03; // Larger step for more control
+            const smoothTransition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            
+            const carouselContainer = document.getElementById('carousel-container');
+            const carouselEl = document.querySelector('.timeline-carousel');
+            
+            // Auto-complete zoom out when scrolling stops
+            let scrollTimeout = null;
+            let isZoomingOut = false;
+            
+            function applyZoom(level, overlay, homePage, carouselEl) {
+                const scale = level;
+                const zoomFactor = (level - minZoom) / (maxZoom - minZoom);
+                const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
+                
+                if (level <= minZoom) {
+                    // Reset to original position when fully zoomed out
+                    carouselEl.style.position = '';
+                    carouselEl.style.top = '';
+                    carouselEl.style.left = '';
+                    carouselEl.style.transform = '';
+                    carouselEl.style.transformOrigin = '';
+                    carouselEl.style.transition = smoothTransition;
+                    carouselEl.dataset.manualZoom = '';
+                    carouselEl.classList.remove('zoomed');
+                    homePage.classList.remove('zoomed');
+                    overlay.classList.remove('active');
+                    overlay.style.opacity = '';
+                    overlay.style.visibility = '';
+                    overlay.style.pointerEvents = '';
+                    
+                    const projectLeft = document.querySelector('.project-left');
+                    if (projectLeft) {
+                        projectLeft.style.opacity = '';
+                        projectLeft.style.visibility = '';
+                    }
+                } else {
+                    // Calculate position based directly on scale
+                    const scaleFactor = (scale - minZoom) / (maxZoom - minZoom);
+                    let leftValue;
+                    if (scaleFactor === 0) {
+                        leftValue = '50%';
+                    } else if (scaleFactor === 1) {
+                        leftValue = 'calc(50% + 6rem)';
+                    } else {
+                        const remInPixels = 6 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+                        const offsetPercent = (remInPixels / window.innerWidth) * 100;
+                        const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
+                        leftValue = `${interpolatedLeft}%`;
+                    }
+                    
+                    carouselEl.style.setProperty('position', 'fixed', 'important');
+                    carouselEl.style.setProperty('top', 'calc(6.5rem + 6rem)', 'important');
+                    carouselEl.style.setProperty('left', leftValue, 'important');
+                    carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
+                    carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
+                    carouselEl.style.setProperty('z-index', '101', 'important');
+                    carouselEl.style.transition = smoothTransition;
+                    carouselEl.dataset.manualZoom = level.toString();
+                    
+                    // Show overlay and text only when fully zoomed
+                    if (level >= maxZoom) {
+                        overlay.classList.add('active');
+                        carouselEl.classList.add('zoomed');
+                        homePage.classList.add('zoomed');
+                        overlay.style.opacity = '';
+                        overlay.style.visibility = '';
+                        overlay.style.pointerEvents = '';
+                        
+                        const projectLeft = document.querySelector('.project-left');
+                        if (projectLeft) {
+                            projectLeft.style.opacity = '1';
+                            projectLeft.style.visibility = 'visible';
+                        }
+                    } else {
+                        overlay.style.opacity = '0';
+                        overlay.style.visibility = 'hidden';
+                        overlay.style.pointerEvents = 'none';
+                        overlay.classList.remove('active');
+                        carouselEl.classList.remove('zoomed');
+                        homePage.classList.remove('zoomed');
+                        
+                        const projectLeft = document.querySelector('.project-left');
+                        if (projectLeft) {
+                            projectLeft.style.opacity = '0';
+                            projectLeft.style.visibility = 'hidden';
+                        }
+                    }
+                }
+            }
+            
+            if (carouselContainer && carouselEl) {
+                carouselContainer.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Check if we're in manual zoom mode
+                    const isManualZoom = carouselEl.dataset.manualZoom !== undefined && carouselEl.dataset.manualZoom !== '';
+                    
+                    // If we're fully zoomed via click (not manual), initialize manual zoom level
+                    if (carouselEl.classList.contains('zoomed') && !isManualZoom) {
+                        manualZoomLevel = maxZoom;
+                        carouselEl.dataset.manualZoom = manualZoomLevel.toString();
+                    }
+                    
+                    // Calculate zoom direction - scroll down zooms in, scroll up zooms out
+                    // Make scroll up zoom out fully in one scroll
+                    const scrollMultiplier = e.deltaY > 0 ? 1 : 20; // Scroll up zooms out fully in one scroll
+                    const delta = e.deltaY > 0 ? zoomStep : -zoomStep * scrollMultiplier;
+                    manualZoomLevel = Math.max(minZoom, Math.min(maxZoom, manualZoomLevel + delta));
+                    
+                    // No auto-complete - zoom out works exactly like zoom in (smooth manual control)
+                    // Clear any existing timeout
+                    if (scrollTimeout) {
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = null;
+                    }
+                    isZoomingOut = false;
+                    
+                    const overlay = document.getElementById('project-overlay');
+                    const homePage = document.getElementById('home-page');
+                    
+                    if (!overlay || !homePage) return;
+                    
+                    // Apply zoom immediately during scroll - smooth continuous motion
+                    // Same logic as zoom in, just works in reverse
+                    const scale = manualZoomLevel;
+                    const zoomFactor = (manualZoomLevel - minZoom) / (maxZoom - minZoom);
+                    const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
+                    
+                    if (manualZoomLevel <= minZoom) {
+                        // Reset to original position when fully zoomed out
+                        carouselEl.style.position = '';
+                        carouselEl.style.top = '';
+                        carouselEl.style.left = '';
+                        carouselEl.style.transform = '';
+                        carouselEl.style.transformOrigin = '';
+                        carouselEl.style.transition = smoothTransition;
+                        carouselEl.dataset.manualZoom = '';
+                        carouselEl.classList.remove('zoomed');
+                        homePage.classList.remove('zoomed');
+                        overlay.classList.remove('active');
+                        overlay.style.opacity = '';
+                        overlay.style.visibility = '';
+                        overlay.style.pointerEvents = '';
+                        
+                        const projectLeft = document.querySelector('.project-left');
+                        if (projectLeft) {
+                            projectLeft.style.opacity = '';
+                            projectLeft.style.visibility = '';
+                        }
+                        
+                        // Cancel auto-complete since we're already at minZoom
+                        isZoomingOut = false;
+                        if (scrollTimeout) {
+                            clearTimeout(scrollTimeout);
+                            scrollTimeout = null;
+                        }
+                    } else {
+                        // Remove zoomed class first if zoom level is below max to allow inline styles to work
+                        if (manualZoomLevel < maxZoom) {
+                            carouselEl.classList.remove('zoomed');
+                            homePage.classList.remove('zoomed');
+                        }
+                        
+                        // Always use inline styles for smooth transitions - never let CSS take over during manual zoom
+                        // Calculate position based directly on scale - ensures perfect synchronization
+                        // Scale goes from 1.0 to 1.25, normalize to 0-1 for position interpolation
+                        const scaleFactor = (scale - minZoom) / (maxZoom - minZoom); // 0 to 1 based on scale
+                        
+                        // Calculate left position: start at 50%, end at calc(50% + 6rem)
+                        // Use calc() to properly mix percentage and rem units
+                        let leftValue;
+                        if (scaleFactor === 0) {
+                            leftValue = '50%';
+                        } else if (scaleFactor === 1) {
+                            leftValue = 'calc(50% + 6rem)';
+                        } else {
+                            // Interpolate: convert 6rem to pixels, then to percentage offset
+                            const remInPixels = 6 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+                            const offsetPercent = (remInPixels / window.innerWidth) * 100;
+                            const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
+                            leftValue = `${interpolatedLeft}%`;
+                        }
+                        
+                        // Always apply transform and position together in one operation - perfectly synchronized
+                        // During active scrolling, use no transition for instant updates (smooth motion)
+                        // Transition will be applied when scrolling stops for auto-complete
+                        carouselEl.style.setProperty('position', 'fixed', 'important');
+                        carouselEl.style.setProperty('top', 'calc(6.5rem + 6rem)', 'important');
+                        carouselEl.style.setProperty('left', leftValue, 'important');
+                        carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
+                        carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
+                        carouselEl.style.setProperty('z-index', '101', 'important');
+                        carouselEl.style.transition = smoothTransition; // Same transition as click zoom
+                        carouselEl.dataset.manualZoom = manualZoomLevel.toString();
+                        
+                        // Show overlay and text ONLY when fully zoomed (exactly at maxZoom)
+                        // Hide text immediately when zooming out (manualZoomLevel < maxZoom)
+                        if (manualZoomLevel >= maxZoom) {
+                            overlay.classList.add('active');
+                            carouselEl.classList.add('zoomed');
+                            homePage.classList.add('zoomed');
+                            overlay.style.opacity = '';
+                            overlay.style.visibility = '';
+                            overlay.style.pointerEvents = '';
+                            
+                            // Show text immediately when fully zoomed
+                            const projectLeft = document.querySelector('.project-left');
+                            if (projectLeft) {
+                                projectLeft.style.opacity = '1';
+                                projectLeft.style.visibility = 'visible';
+                            }
+                        } else {
+                            // Hide overlay and text when NOT fully zoomed (including during zoom out)
+                            overlay.style.opacity = '0';
+                            overlay.style.visibility = 'hidden';
+                            overlay.style.pointerEvents = 'none';
+                            overlay.classList.remove('active');
+                            carouselEl.classList.remove('zoomed');
+                            homePage.classList.remove('zoomed');
+                            
+                            // Hide project text when not fully zoomed - ensure it's hidden during zoom out
+                            const projectLeft = document.querySelector('.project-left');
+                            if (projectLeft) {
+                                projectLeft.style.opacity = '0';
+                                projectLeft.style.visibility = 'hidden';
+                            }
+                        }
+                    }
+                }, { passive: false });
+                
+                // Also handle scroll on the overlay when it's active (Aiva page)
+                const overlay = document.getElementById('project-overlay');
+                if (overlay) {
+                    overlay.addEventListener('wheel', function(e) {
+                        // Only handle if overlay is active
+                        if (!overlay.classList.contains('active')) {
+                            return;
+                        }
+                        
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Check if we're in manual zoom mode
+                        const isManualZoom = carouselEl.dataset.manualZoom !== undefined && carouselEl.dataset.manualZoom !== '';
+                        
+                        // If we're fully zoomed via click (not manual), initialize manual zoom level
+                        if (carouselEl.classList.contains('zoomed') && !isManualZoom) {
+                            manualZoomLevel = maxZoom;
+                            carouselEl.dataset.manualZoom = manualZoomLevel.toString();
+                        }
+                        
+                        // Calculate zoom direction - scroll down zooms in, scroll up zooms out
+                        // Make scroll up zoom out fully in one scroll
+                        const scrollMultiplier = e.deltaY > 0 ? 1 : 20; // Scroll up zooms out fully in one scroll
+                        const delta = e.deltaY > 0 ? zoomStep : -zoomStep * scrollMultiplier;
+                        manualZoomLevel = Math.max(minZoom, Math.min(maxZoom, manualZoomLevel + delta));
+                        
+                        // No auto-complete - zoom out works exactly like zoom in (smooth manual control)
+                        // Clear any existing timeout
+                        if (scrollTimeout) {
+                            clearTimeout(scrollTimeout);
+                            scrollTimeout = null;
+                        }
+                        isZoomingOut = false;
+                        
+                        const homePage = document.getElementById('home-page');
+                        if (!homePage) return;
+                        
+                        // Calculate interpolation factor (0 to 1)
+                        const zoomFactor = (manualZoomLevel - minZoom) / (maxZoom - minZoom);
+                        const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
+                        const scale = manualZoomLevel;
+                        
+                        if (manualZoomLevel <= minZoom) {
+                            // Reset to original position when fully zoomed out
+                            carouselEl.style.position = '';
+                            carouselEl.style.top = '';
+                            carouselEl.style.left = '';
+                            carouselEl.style.transform = '';
+                            carouselEl.style.transformOrigin = '';
+                            carouselEl.style.transition = smoothTransition;
+                            carouselEl.dataset.manualZoom = '';
+                            carouselEl.classList.remove('zoomed');
+                            homePage.classList.remove('zoomed');
+                            overlay.classList.remove('active');
+                            overlay.style.opacity = '';
+                            overlay.style.visibility = '';
+                            overlay.style.pointerEvents = '';
+                            
+                            const projectLeft = document.querySelector('.project-left');
+                            if (projectLeft) {
+                                projectLeft.style.opacity = '';
+                                projectLeft.style.visibility = '';
+                            }
+                        } else {
+                            // Remove zoomed class first if zoom level is below max to allow inline styles to work
+                            if (manualZoomLevel < maxZoom) {
+                                carouselEl.classList.remove('zoomed');
+                                homePage.classList.remove('zoomed');
+                            }
+                            
+                            // Always use inline styles for smooth transitions - never let CSS take over during manual zoom
+                            // Calculate position based directly on scale - ensures perfect synchronization
+                            // Scale goes from 1.0 to 1.25, normalize to 0-1 for position interpolation
+                            const scaleFactor = (scale - minZoom) / (maxZoom - minZoom); // 0 to 1 based on scale
+                            
+                            // Calculate left position: start at 50%, end at calc(50% + 6rem)
+                            // Use calc() to properly mix percentage and rem units
+                            let leftValue;
+                            if (scaleFactor === 0) {
+                                leftValue = '50%';
+                            } else if (scaleFactor === 1) {
+                                leftValue = 'calc(50% + 6rem)';
+                            } else {
+                                // Interpolate: convert 6rem to pixels, then to percentage offset
+                                const remInPixels = 6 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+                                const offsetPercent = (remInPixels / window.innerWidth) * 100;
+                                const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
+                                leftValue = `${interpolatedLeft}%`;
+                            }
+                            
+                        // Always apply transform and position together in one operation - perfectly synchronized
+                        // During active scrolling, use no transition for instant updates (smooth motion)
+                        // Transition will be applied when scrolling stops for auto-complete
+                        carouselEl.style.setProperty('position', 'fixed', 'important');
+                        carouselEl.style.setProperty('top', 'calc(6.5rem + 6rem)', 'important');
+                        carouselEl.style.setProperty('left', leftValue, 'important');
+                        carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
+                        carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
+                        carouselEl.style.setProperty('z-index', '101', 'important');
+                        carouselEl.style.transition = smoothTransition; // Same transition as click zoom
+                        carouselEl.dataset.manualZoom = manualZoomLevel.toString();
+                            
+                            // Show overlay and text only when fully zoomed
+                            if (manualZoomLevel >= maxZoom) {
+                                overlay.classList.add('active');
+                                carouselEl.classList.add('zoomed');
+                                homePage.classList.add('zoomed');
+                                overlay.style.opacity = '';
+                                overlay.style.visibility = '';
+                                overlay.style.pointerEvents = '';
+                                
+                                // Show text immediately when fully zoomed
+                                const projectLeft = document.querySelector('.project-left');
+                                if (projectLeft) {
+                                    projectLeft.style.opacity = '1';
+                                    projectLeft.style.visibility = 'visible';
+                                }
+                            } else {
+                                // Hide overlay and text when not fully zoomed
+                                overlay.style.opacity = '0';
+                                overlay.style.visibility = 'hidden';
+                                overlay.style.pointerEvents = 'none';
+                                overlay.classList.remove('active');
+                                carouselEl.classList.remove('zoomed');
+                                homePage.classList.remove('zoomed');
+                                
+                                // Hide project text when not fully zoomed
+                                const projectLeft = document.querySelector('.project-left');
+                                if (projectLeft) {
+                                    projectLeft.style.opacity = '0';
+                                    projectLeft.style.visibility = 'hidden';
+                                }
+                            }
+                        }
+                    }, { passive: false });
+                }
+            }
+            
+            // Handle clicks on navigation links
+            document.body.addEventListener('click', function(e) {
+                const link = e.target.closest('a[data-page]');
+                const carouselContainer = e.target.closest('.carousel-container');
+                const carouselImage = e.target.closest('.carousel-image');
+                const projectBackButton = e.target.closest('#project-back-button');
+                const projectLeft = e.target.closest('.project-left');
+                const themeToggle = e.target.closest('.theme-toggle');
+                const overlay = document.getElementById('project-overlay');
+                const isOverlayActive = overlay && overlay.classList.contains('active');
+                
+                // Don't handle theme toggle clicks here - let theme toggle handler work
+                if (themeToggle) {
+                    return;
+                }
+                
+                // Handle project back button (zoom out)
+                if (projectBackButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    zoomOut();
+                    return false;
+                }
+                
+                // Handle click outside image/text on overlay (zoom out)
+                // Exclude theme toggle and back button
+                if (isOverlayActive && !projectLeft && !carouselImage && !carouselContainer && !themeToggle && !projectBackButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    zoomOut();
+                    return false;
+                }
+                
+                // Handle carousel click (zoom in)
+                if (carouselContainer || carouselImage) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const carouselEl = document.querySelector('.timeline-carousel');
+                    const homePage = document.getElementById('home-page');
+                    
+                    if (overlay && carouselEl && homePage) {
+                        // Reset manual zoom
+                        manualZoomLevel = 0;
+                        carouselEl.dataset.manualZoom = '0';
+                        overlay.classList.add('active');
+                        carouselEl.classList.add('zoomed');
+                        homePage.classList.add('zoomed');
+                        // Let CSS handle the transform
+                        carouselEl.style.transform = '';
+                    }
+                    return false;
+                }
+                
+                // Handle regular navigation links
+                if (link) {
+                    console.log('Link clicked:', link);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const page = link.getAttribute('data-page') + '-page';
+                    console.log('Navigating to page:', page);
+                    showPage(page);
+                    return false;
+                }
+                
+                // Handle click outside content on About page (go back to home)
+                const aboutPage = document.getElementById('about-page');
+                const aboutPageContainer = e.target.closest('.about-page-container');
+                const aboutBackButton = e.target.closest('.back-button[data-page="home"]');
+                const aboutThemeToggle = e.target.closest('.theme-toggle');
+                const aboutLinks = e.target.closest('.about-links');
+                const aboutLink = e.target.closest('.about-link, .email-link');
+                
+                if (aboutPage && aboutPage.classList.contains('active')) {
+                    // If click is outside the content container, back button, theme toggle, and links
+                    if (!aboutPageContainer && !aboutBackButton && !aboutThemeToggle && !aboutLinks && !aboutLink) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showPage('home-page');
+                        return false;
+                    }
+                }
+            });
+            
+            // Prevent scrolling on home page
+            function preventScroll(e) {
+                const homePage = document.getElementById('home-page');
+                if (homePage && homePage.classList.contains('active')) {
+                    e.preventDefault();
+                }
+            }
+            
+            document.addEventListener('wheel', preventScroll, { passive: false });
+            document.addEventListener('touchmove', preventScroll, { passive: false });
+        });
+    </script>
+</body>
+</html>

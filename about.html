@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Tyler Buchanan</title>
+    <link rel="stylesheet" href="styles.css?v=21">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            overflow: auto;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 3rem;
+            left: 4rem;
+            z-index: 1000;
+            font-size: 1.75rem;
+            color: #888888;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+        
+        .back-button:hover {
+            color: #000000;
+        }
+        
+        .about-page {
+            display: flex;
+            min-height: 100vh;
+            padding: 6.5rem 9.5rem;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .about-left {
+            flex: 0 0 40%;
+            max-width: 500px;
+        }
+        
+        .about-right {
+            flex: 1;
+            max-width: 55%;
+            height: 50vh;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 768px) {
+        }
+        
+        .about-paragraph {
+            font-size: 0.95rem;
+            line-height: 1.3;
+            color: #000000;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+        
+        .about-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.05rem;
+        }
+        
+        .email-link,
+        .about-link {
+            font-size: 0.875rem;
+            color: #888888;
+            text-decoration: none;
+            font-weight: 300;
+            transition: color 0.3s ease;
+            display: inline-block;
+        }
+        
+        .email-link:hover,
+        .about-link:hover {
+            color: #000000;
+        }
+        
+        .about-right {
+            flex: 1;
+            max-width: 55%;
+            height: 50vh;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .about-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            filter: grayscale(100%);
+        }
+        
+        @media (max-width: 768px) {
+            .back-button {
+                top: 2rem;
+                left: 2.5rem;
+                font-size: 1.5rem;
+            }
+            
+            .about-page {
+                flex-direction: column;
+                padding: 4rem 5.5rem;
+                gap: 3rem;
+            }
+            
+            .about-left {
+                flex: 1;
+                max-width: 100%;
+            }
+            
+            .about-right {
+                width: 100%;
+                height: 35vh;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .back-button {
+                top: 1.5rem;
+                left: 1.5rem;
+                font-size: 1.5rem;
+            }
+            
+            .about-page {
+                padding: 2.5rem 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button - Top Left -->
+    <a href="index.html" class="back-button">‹</a>
+
+    <!-- About Content -->
+    <div class="about-page">
+        <div class="about-left">
+            <p class="about-paragraph">
+                Tyler Buchanan is an entrepreneur, interface designer, and frontend developer. Co-Founder of Arceus and creator of Aiva. He is currently working on new projects alongside his education. His work spans product design, frontend engineering, and systems thinking, with a focus on clarity, craftsmanship, and long-term vision. Outside of Design, Tyler spends his free time mountain biking, snowboarding, rock climbing, and birding.
+            </p>
+            <div class="about-links">
+                <a href="mailto:your.email@example.com" class="email-link">Email</a>
+                <a href="https://pinterest.com/yourprofile" target="_blank" class="about-link">Pinterest</a>
+                <a href="https://music.apple.com/profile/yourprofile" target="_blank" class="about-link">Apple Music</a>
+            </div>
+        </div>
+        
+        <div class="about-right">
+            <img src="about-image.png" alt="Tyler Buchanan" class="about-image">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

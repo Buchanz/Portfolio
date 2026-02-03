@@ -1,2 +1,0 @@
-# Portfolio
-Tyler Buchanan - Portfolio
