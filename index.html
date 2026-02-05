@@ -7,11 +7,48 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Tyler Buchanan - Portfolio</title>
-    <link rel="stylesheet" href="styles.css?v=72">
+    <link rel="stylesheet" href="styles.css?v=132">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Theme toggle - transitions exactly like name-section */
+        .theme-toggle {
+            position: fixed !important;
+            top: 3rem;
+            right: 4rem;
+            z-index: 10001 !important;
+            pointer-events: auto !important;
+        }
+        
+        /* Ensure theme toggle icons container never fades - only allow icon swap transitions */
+        .theme-toggle .sun-icon,
+        .theme-toggle .moon-icon {
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        }
+
+        /* Disable image opacity transitions during theme swap */
+        .theme-instant .carousel-image,
+        .theme-instant .project-image {
+            transition: none !important;
+        }
+
+        /* Temporary window size readout */
+        #size-readout {
+            position: fixed;
+            bottom: 12px;
+            right: 12px;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            font: 12px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            border-radius: 6px;
+            z-index: 10002;
+            pointer-events: none;
+            letter-spacing: 0.02em;
+        }
+        
+        
         /* Page Transition Styles */
         .page {
             position: fixed;
@@ -27,11 +64,10 @@
             transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease, background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
-        /* Theme toggle stays visible across all pages */
-        .theme-toggle {
-            opacity: 1 !important;
-            visibility: visible !important;
-            z-index: 1001 !important;
+        /* Theme toggle icons - allow icon swap transitions */
+        .theme-toggle .sun-icon,
+        .theme-toggle .moon-icon {
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
         }
         
         /* Home page enters from smaller scale */
@@ -50,7 +86,9 @@
         #about-page {
             transform-origin: center top;
             transform: translateY(-30px) scale(1.1);
-            background-color: var(--bg-color);
+            background-color: var(--about-glass-bg);
+            backdrop-filter: blur(14px) saturate(120%);
+            -webkit-backdrop-filter: blur(14px) saturate(120%);
             transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
@@ -133,7 +171,7 @@
         /* Timeline Carousel */
         .timeline-carousel {
             position: fixed;
-            top: calc(6.5rem + 6rem);
+            top: calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px));
             left: 50%;
             transform: translateX(-50%);
             transform-origin: center bottom;
@@ -225,11 +263,437 @@
                 max-width: 150px;
             }
         }
+
+        @media (max-width: 1600px) {
+            .timeline-carousel {
+                width: 230px;
+                max-width: 230px;
+            }
+
+            .project-page-container {
+                padding: 0 22rem;
+            }
+
+            .project-image-container {
+                max-width: 520px !important;
+            }
+
+            .about-page-container {
+                padding: 6.5rem 9rem;
+            }
+
+            .about-left {
+                max-width: 380px;
+            }
+
+            .about-right {
+                max-width: 32%;
+                width: 32%;
+            }
+
+            .about-paragraph {
+                font-size: 1.1rem;
+            }
+
+            .email-link,
+            .about-link {
+                font-size: 1.05rem;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .timeline-carousel {
+                width: 210px;
+                max-width: 210px;
+            }
+
+            .project-page-container {
+                padding: 0 18rem;
+            }
+
+            .project-image-container {
+                max-width: 480px !important;
+            }
+
+            .project-title {
+                font-size: 1rem;
+            }
+
+            .project-role,
+            .project-design,
+            .project-year {
+                font-size: 0.85rem;
+            }
+
+            .project-contributor {
+                font-size: 0.8rem;
+            }
+
+            .about-page-container {
+                padding: 6rem 7rem;
+            }
+
+            .about-left {
+                max-width: 360px;
+            }
+
+            .about-right {
+                max-width: 30%;
+                width: 30%;
+            }
+
+            .about-paragraph {
+                font-size: 1rem;
+                line-height: 1.35;
+            }
+
+            .email-link,
+            .about-link {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .timeline-carousel {
+                width: 190px;
+                max-width: 190px;
+            }
+
+            .project-page-container {
+                padding: 0 14rem;
+            }
+
+            .project-image-container {
+                max-width: 420px !important;
+            }
+
+            .project-title {
+                font-size: 0.95rem;
+            }
+
+            .project-role,
+            .project-design,
+            .project-year {
+                font-size: 0.8rem;
+            }
+
+            .project-contributor {
+                font-size: 0.75rem;
+                white-space: normal;
+            }
+
+            .project-role,
+            .project-design {
+                white-space: normal;
+            }
+
+            .about-page-container {
+                padding: 5.5rem 5rem;
+            }
+
+            .about-left {
+                max-width: 320px;
+            }
+
+            .about-right {
+                max-width: 34%;
+                width: 34%;
+                height: 42vh;
+                min-height: 42vh;
+            }
+
+            .about-paragraph {
+                font-size: 0.95rem;
+                line-height: 1.32;
+            }
+
+            .email-link,
+            .about-link {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .timeline-carousel {
+                width: 170px;
+                max-width: 170px;
+            }
+
+            .project-page-container {
+                padding: 0 10rem;
+                gap: 1.5rem;
+            }
+
+            .project-image-container {
+                max-width: 360px !important;
+            }
+
+            .project-title {
+                font-size: 0.9rem;
+            }
+
+            .project-role,
+            .project-design,
+            .project-year {
+                font-size: 0.75rem;
+            }
+
+            .project-contributor {
+                font-size: 0.7rem;
+            }
+
+            .about-page-container {
+                padding: 5rem 3.5rem;
+                gap: 3rem;
+            }
+
+            .about-left {
+                max-width: 300px;
+            }
+
+            .about-right {
+                max-width: 36%;
+                width: 36%;
+                height: 42vh;
+                min-height: 42vh;
+            }
+
+            .about-paragraph {
+                font-size: 0.88rem;
+                line-height: 1.28;
+            }
+
+            .email-link,
+            .about-link {
+                font-size: 0.82rem;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .timeline-carousel {
+                width: 140px;
+                max-width: 140px;
+            }
+
+            .timeline-carousel:not(.zoomed) {
+                top: auto !important;
+                bottom: clamp(1.5rem, 4vh, 3rem) !important;
+            }
+
+            .timeline-carousel.zoomed {
+                top: auto !important;
+                bottom: clamp(1.5rem, 4vh, 3rem) !important;
+            }
+
+            .project-page-container {
+                padding: 0 7rem;
+                gap: 1.25rem;
+            }
+
+            .project-image-container {
+                max-width: 300px !important;
+            }
+
+            .project-title {
+                font-size: 0.85rem;
+            }
+
+            .project-role,
+            .project-design,
+            .project-year {
+                font-size: 0.7rem;
+            }
+
+            .project-contributor {
+                font-size: 0.65rem;
+            }
+
+            .about-page-container {
+                padding: 4rem 3rem;
+                gap: 2.5rem;
+            }
+
+            .about-left {
+                max-width: clamp(220px, 48vw, 300px);
+                width: clamp(220px, 48vw, 300px);
+            }
+
+            .about-right {
+                max-width: clamp(170px, 30vw, 240px);
+                width: clamp(170px, 30vw, 240px);
+                height: auto;
+                min-height: 0;
+            }
+
+            .about-image {
+                filter: grayscale(100%) !important;
+                -webkit-filter: grayscale(100%) !important;
+            }
+
+            .about-paragraph {
+                font-size: 0.85rem;
+                line-height: 1.28;
+            }
+
+            .email-link,
+            .about-link {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .timeline-carousel {
+                width: 120px;
+                max-width: 120px;
+            }
+
+            .timeline-carousel:not(.zoomed) {
+                top: auto !important;
+                bottom: clamp(1.2rem, 4vh, 2.5rem) !important;
+            }
+
+            .timeline-carousel.zoomed {
+                top: auto !important;
+                bottom: clamp(1.2rem, 4vh, 2.5rem) !important;
+            }
+
+            .project-page-container {
+                padding: 0 4.5rem;
+                gap: 1rem;
+            }
+
+            .project-image-container {
+                max-width: 260px !important;
+            }
+
+            .project-title {
+                font-size: 0.8rem;
+            }
+
+            .project-role,
+            .project-design,
+            .project-year {
+                font-size: 0.65rem;
+            }
+
+            .project-contributor {
+                font-size: 0.6rem;
+            }
+
+            .about-page-container {
+                padding: 3.5rem 2.5rem;
+                gap: 2rem;
+            }
+
+            .about-left {
+                max-width: clamp(200px, 52vw, 280px);
+                width: clamp(200px, 52vw, 280px);
+            }
+
+            .about-right {
+                max-width: clamp(160px, 32vw, 220px);
+                width: clamp(160px, 32vw, 220px);
+                height: auto;
+                min-height: 0;
+            }
+
+            .about-image {
+                filter: grayscale(100%) !important;
+                -webkit-filter: grayscale(100%) !important;
+            }
+
+            .about-paragraph {
+                font-size: 0.8rem;
+                line-height: 1.25;
+            }
+
+            .email-link,
+            .about-link {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 570px) {
+            .timeline-carousel {
+                width: 105px;
+                max-width: 105px;
+            }
+
+            .timeline-carousel:not(.zoomed) {
+                top: auto !important;
+                bottom: clamp(1rem, 4vh, 2rem) !important;
+            }
+
+            .timeline-carousel.zoomed {
+                top: auto !important;
+                bottom: clamp(1rem, 4vh, 2rem) !important;
+            }
+
+            .project-page-container {
+                padding: 0 3.5rem;
+                gap: 0.8rem;
+            }
+
+            .project-image-container {
+                max-width: 230px !important;
+            }
+
+            .project-title {
+                font-size: 0.75rem;
+            }
+
+            .project-role,
+            .project-design,
+            .project-year {
+                font-size: 0.6rem;
+            }
+
+            .project-contributor {
+                font-size: 0.55rem;
+            }
+
+            .about-page-container {
+                padding: 3rem 2rem;
+                gap: 1.5rem;
+            }
+
+            .about-left {
+                max-width: clamp(180px, 58vw, 260px);
+                width: clamp(180px, 58vw, 260px);
+            }
+
+            .about-right {
+                max-width: clamp(150px, 30vw, 200px);
+                width: clamp(150px, 30vw, 200px);
+                height: auto;
+                min-height: 0;
+            }
+
+            .about-image {
+                filter: grayscale(100%) !important;
+                -webkit-filter: grayscale(100%) !important;
+            }
+
+            .about-paragraph {
+                font-size: 0.75rem;
+                line-height: 1.22;
+            }
+
+            .email-link,
+            .about-link {
+                font-size: 0.7rem;
+            }
+        }
         
         /* Animate home page elements */
         .home-page.active .name-section,
         .home-page.active .links-section {
             animation: fadeInScaleUp 0.25s ease 0.05s both;
+        }
+        
+        /* Toggle appears later */
+        .home-page.active .theme-toggle {
+            animation: fadeInScaleUp 0.25s ease 0.3s both;
         }
         
         /* Don't animate home page elements when coming from project page */
@@ -238,11 +702,21 @@
             animation: none;
         }
         
+        .home-page.active:not(.entering-from-about) .theme-toggle {
+            animation: none;
+        }
+        
         /* Animate home page elements when coming from About */
         .home-page.entering-from-about.active .name-section,
         .home-page.entering-from-about.active .links-section {
             animation: fadeInFromBelow 0.25s ease 0.05s both;
         }
+        
+        /* Toggle appears later when coming from About */
+        .home-page.entering-from-about.active .theme-toggle {
+            animation: fadeInFromBelow 0.25s ease 0.3s both;
+        }
+        
         
         @keyframes fadeInScaleUp {
             from {
@@ -264,6 +738,11 @@
             animation: fadeInFromAbove 0.25s ease 0.02s both;
         }
         
+        /* Toggle appears later on About page */
+        #about-page.active .theme-toggle {
+            animation: fadeInFromAbove 0.25s ease 0.3s both;
+        }
+        
         @keyframes fadeInFromAbove {
             from {
                 opacity: 0;
@@ -281,6 +760,11 @@
             animation: liftOut 0.25s ease both;
         }
         
+        /* Toggle fades out earlier when leaving About page */
+        #about-page.exiting .theme-toggle {
+            animation: liftOut 0.25s ease 0s both;
+        }
+        
         @keyframes liftOut {
             to {
                 opacity: 0;
@@ -293,6 +777,11 @@
             animation: shrinkOut 0.2s ease both;
         }
         
+        /* Toggle fades out earlier when leaving home page */
+        .home-page.exiting .theme-toggle {
+            animation: shrinkOut 0.2s ease 0s both;
+        }
+        
         @keyframes shrinkOut {
             to {
                 opacity: 0;
@@ -302,7 +791,8 @@
         
         /* Home page elements enter from below when coming from About */
         .home-page.entering-from-about.active .name-section,
-        .home-page.entering-from-about.active .links-section {
+        .home-page.entering-from-about.active .links-section,
+        .home-page.entering-from-about.active .theme-toggle {
             animation: fadeInFromBelow 0.25s ease 0.05s both;
         }
         
@@ -319,7 +809,7 @@
         
         /* About Page */
         #about-page {
-            overflow-y: auto;
+            overflow: hidden;
         }
         
         /* Project Detail Page */
@@ -362,6 +852,7 @@
             margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem);
             transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             line-height: 1.3;
+            white-space: nowrap; /* Web view: keep on one line */
         }
         
         .project-design {
@@ -371,6 +862,7 @@
             margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem);
             transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             line-height: 1.3;
+            white-space: nowrap; /* Web view: keep on one line */
         }
         
         .project-company {
@@ -380,13 +872,14 @@
             margin-bottom: 0.15rem;
             transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             line-height: 1.3;
+            display: block;
         }
         
         .project-year {
             font-size: clamp(0.75rem, 0.95vw, 0.95rem);
             font-weight: 400;
             color: var(--text-color);
-            margin-bottom: clamp(1.5rem, 2vw, 2rem);
+            margin-bottom: clamp(1.5rem, 2vw, 2.5rem); /* Equal spacing above symbol */
             transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             line-height: 1.3;
         }
@@ -422,6 +915,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.05rem;
+            margin-top: clamp(1.5rem, 2vw, 2.5rem); /* Equal spacing below symbol - move contributors down */
         }
         
         .project-contributor {
@@ -429,7 +923,9 @@
             color: var(--text-secondary);
             font-weight: 300;
             transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            white-space: nowrap; /* Web view: keep names on one line */
         }
+
         
         .project-right {
             flex: 1;
@@ -439,6 +935,11 @@
             align-items: center;
             justify-content: center;
             overflow: visible;
+        }
+        
+        /* Web view: project-right in overlay - hide image, use zoomed carousel instead */
+        .project-detail-overlay .project-content-container .project-right {
+            display: none;
         }
         
         .project-right .project-image-container {
@@ -464,7 +965,7 @@
             }
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
             .project-image-container {
                 max-width: 100% !important;
             }
@@ -546,13 +1047,20 @@
             pointer-events: auto;
         }
         
-        /* Project content container */
+        /* Project content container - web view: text moved slightly to the left */
         .project-content-container {
             display: flex;
-            height: 100vh;
-            padding: 0 30rem;
-            gap: 2rem;
+            height: auto;
+            padding: 0;
+            gap: 4rem;
             align-items: center;
+            justify-content: flex-start;
+            position: fixed;
+            top: 50%;
+            left: calc(50% - 320px) !important; /* Position slightly more to the left */
+            transform: translateY(-50%) !important; /* Only translate Y to center vertically */
+            width: auto;
+            max-width: 500px;
         }
         
         /* Carousel image zoom effect - smooth transition both ways */
@@ -572,12 +1080,13 @@
         /* Simplified: translateY = 50vh - scaled_height/2 - 100vh + 12.5rem + 260px + 130px */
         /* = -50vh - scaled_height/2 + 12.5rem + 390px */
         
+        /* Web view: zoomed carousel - positioned slightly to the left, slightly smaller */
         .timeline-carousel.zoomed {
             position: fixed !important;
-            top: calc(6.5rem + 6rem) !important;
-            left: calc(50% + 6rem) !important;
+            top: calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px)) !important;
+            left: calc(50% + 140px) !important; /* Restore project-page horizontal position */
             transform-origin: center bottom !important;
-            transform: translateX(-50%) scale(1.25) !important;
+            transform: translateX(-50%) scale(1.35) !important; /* Expand upward, no vertical shift */
             z-index: 101 !important;
             width: 260px !important;
             pointer-events: none;
@@ -614,25 +1123,46 @@
             opacity: 1 !important;
         }
         
-        /* Project text appears beside zoomed image - equal horizontal padding */
-        .project-detail-overlay .project-left {
-            position: fixed;
-            left: 30rem;
-            top: 50%;
-            transform: translateY(-50%);
+        /* Project text appears on left side - web view: side by side with image */
+        .project-detail-overlay .project-content-container .project-left {
+            position: relative;
+            left: auto;
+            top: auto;
+            transform: none;
             opacity: 0;
             max-width: 500px;
             z-index: 102;
             transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s;
             pointer-events: none;
             padding-right: 0;
-            margin-right: 1rem;
+            margin-right: 0;
+        }
+        
+        .project-detail-overlay.active .project-content-container .project-left {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Legacy support for old selector */
+        .project-detail-overlay .project-left {
+            position: relative;
+            left: auto;
+            top: auto;
+            transform: none;
+            opacity: 0;
+            max-width: 500px;
+            z-index: 102;
+            transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s;
+            pointer-events: none;
+            padding-right: 0;
+            margin-right: 0;
         }
         
         .project-detail-overlay.active .project-left {
             opacity: 1;
             pointer-events: auto;
         }
+        
         
         /* Smooth fade out for text when zooming out */
         .project-detail-overlay:not(.active) .project-left {
@@ -641,14 +1171,16 @@
         
         /* Hide home page elements when zoomed */
         .home-page.zoomed .name-section,
-        .home-page.zoomed .links-section {
+        .home-page.zoomed .links-section,
+        .home-page.zoomed .theme-toggle {
             opacity: 0;
             transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
         }
         
         /* Ensure smooth reverse transition */
         .home-page:not(.zoomed) .name-section,
-        .home-page:not(.zoomed) .links-section {
+        .home-page:not(.zoomed) .links-section,
+        .home-page:not(.zoomed) .theme-toggle {
             opacity: 1;
             transition: opacity 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) 0.2s;
         }
@@ -675,8 +1207,86 @@
             }
         }
         
+        /* Web view only: Make all Aiva page text the same size as the title */
+        .project-detail-overlay .project-content-container .project-title,
+        .project-detail-overlay .project-content-container .project-role,
+        .project-detail-overlay .project-content-container .project-design,
+        .project-detail-overlay .project-content-container .project-company,
+        .project-detail-overlay .project-content-container .project-year,
+        .project-detail-overlay .project-content-container .project-contributor {
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem) !important;
+        }
         
-        @media (max-width: 768px) {
+        /* Web view: Move title, role, design, year text up even more */
+        .project-detail-overlay .project-content-container .project-title {
+            margin-bottom: 0 !important; /* Move up even more */
+        }
+        
+        .project-detail-overlay .project-content-container .project-role {
+            margin-bottom: 0 !important; /* Move up even more */
+        }
+        
+        .project-detail-overlay .project-content-container .project-design {
+            margin-bottom: 0 !important; /* Move up even more */
+        }
+        
+        .project-detail-overlay .project-content-container .project-year {
+            margin-bottom: clamp(1rem, 2vw, 2rem) !important; /* Add even more spacing above symbol */
+        }
+        
+        /* Web view: Move contributors down */
+        .project-detail-overlay .project-content-container .project-contributors {
+            margin-top: clamp(1.5rem, 2vw, 2.5rem) !important; /* Move down */
+        }
+        
+        /* Project link arrow - diagonal arrow symbol with circle */
+        .project-link-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+            color: var(--text-color);
+            text-decoration: none;
+            margin-bottom: clamp(0.5rem, 1vw, 1rem); /* Decreased padding */
+            margin-top: clamp(0.5rem, 1vw, 1rem); /* Decreased padding */
+            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            line-height: 1;
+        }
+        
+        .project-link-arrow:hover {
+            color: var(--text-secondary-hover);
+            border-color: var(--text-secondary-hover);
+        }
+        
+        /* Web view: Position arrow to the right, centered with contributors */
+        .project-detail-overlay .project-content-container .project-left {
+            position: relative;
+        }
+        
+        /* Position arrow on its own line between 2025 and Tyler Buchanan - maintain circle shape */
+        .project-detail-overlay .project-content-container .project-link-arrow {
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem) !important;
+            display: inline-flex !important; /* Keep inline-flex to maintain circle */
+            align-items: center !important;
+            justify-content: center !important;
+            width: 2rem !important; /* Maintain circle width */
+            height: 2rem !important; /* Maintain circle height */
+            border: 2px solid var(--text-color) !important;
+            border-radius: 50% !important; /* Maintain circle shape */
+            position: static !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            transform: none !important;
+        }
+        
+        
+        @media (max-width: 480px) {
             .project-page-container {
                 flex-direction: column;
                 padding: 4rem 5.5rem;
@@ -732,23 +1342,29 @@
                         border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
+        /* Only allow icon transitions for sun/moon swap */
+        .theme-toggle .sun-icon,
+        .theme-toggle .moon-icon {
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        }
+        
         /* Exclude elements that shouldn't transition */
         img, svg, canvas, video, iframe {
             transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
-        /* Theme Toggle Button */
+        /* Theme Toggle Button - Position and styling */
         .theme-toggle {
-            position: fixed;
+            position: fixed !important;
             top: 3rem;
             right: 4rem;
-            z-index: 1000;
+            z-index: 10001 !important;
             color: var(--text-secondary);
             background: none;
             border: none;
             cursor: pointer;
             padding: 0;
-            transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: none !important;
             font-weight: 300;
             letter-spacing: 0.1em;
             line-height: 1;
@@ -757,6 +1373,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         
         .theme-toggle:hover {
@@ -772,11 +1390,20 @@
             transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             font-size: 1.4rem;
             line-height: 1;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            width: 1.4rem;
+            height: 1.4rem;
+            display: grid;
+            place-items: center;
         }
         
         .theme-toggle .sun-icon {
             opacity: 1;
             transform: rotate(0deg) scale(1);
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            position: relative;
         }
         
         .theme-toggle .moon-icon {
@@ -792,6 +1419,36 @@
         [data-theme="dark"] .theme-toggle .moon-icon {
             opacity: 1;
             transform: rotate(0deg) scale(1);
+        }
+
+        /* CSS sun symbol (no emoji) */
+        .theme-toggle .sun-icon::before {
+            content: '';
+            position: absolute;
+            inset: 28% 28%;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .theme-toggle .sun-icon::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow:
+                0 -9px 0 0 currentColor,
+                0 9px 0 0 currentColor,
+                -9px 0 0 0 currentColor,
+                9px 0 0 0 currentColor,
+                6px 6px 0 0 currentColor,
+                -6px 6px 0 0 currentColor,
+                6px -6px 0 0 currentColor,
+                -6px -6px 0 0 currentColor;
+            opacity: 0.9;
         }
         
         /* About Page Styles */
@@ -827,9 +1484,20 @@
         
         .about-left {
             flex: 0 0 auto;
-            max-width: 350px;
+            max-width: 400px;
             background-color: transparent;
-            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        transform 0.25s ease;
+            height: var(--about-image-height, auto);
+            display: flex;
+            align-items: flex-start;
+            overflow: hidden;
+        }
+
+        .about-text-wrap {
+            width: 100%;
+            transform-origin: top left;
+            transform: scale(var(--about-text-scale, 1));
         }
         
         .about-right {
@@ -842,7 +1510,7 @@
             display: flex !important;
             align-items: center;
             justify-content: center;
-            overflow: visible;
+            overflow: hidden;
             position: relative;
             opacity: 1 !important;
             visibility: visible !important;
@@ -856,23 +1524,23 @@
         }
         
         .about-paragraph {
-            font-size: 0.8rem;
-            line-height: 1.3;
+            font-size: 1.15rem;
+            line-height: 1.45;
             color: var(--text-color);
             margin-bottom: 1rem;
-            font-weight: 400;
+            font-weight: 300;
             transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
         .about-links {
             display: flex;
             flex-direction: column;
-            gap: 0.05rem;
+            gap: 0.2rem;
         }
         
         .email-link,
         .about-link {
-            font-size: 0.8rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             text-decoration: none;
             font-weight: 300;
@@ -894,14 +1562,17 @@
             min-height: 200px;
             object-fit: contain;
             object-position: center;
-            filter: grayscale(100%);
+            filter: grayscale(100%) !important;
             display: block !important;
             opacity: 1 !important;
             visibility: visible !important;
             position: relative;
             z-index: 1;
             transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: transparent;
         }
+        
+        /* Keep grayscale for desktop layout down to 570px; mobile overrides later */
         
         #about-page.active .about-image {
             opacity: 1 !important;
@@ -909,84 +1580,461 @@
             display: block !important;
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
             .theme-toggle {
-                top: 2rem;
-                right: 2.5rem;
+                top: clamp(2.2rem, 4.5vw, 3.2rem) !important;
+                right: clamp(2rem, 4.5vw, 2.5rem) !important;
+                left: auto !important;
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+                /* Align vertically with chevron - match back button top position exactly */
+                align-items: flex-start !important;
+            }
+            
+            .theme-toggle:focus {
+                outline: none !important;
+            }
+            
+            .theme-toggle:active {
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
             }
             
             .theme-toggle .sun-icon,
             .theme-toggle .moon-icon {
-                font-size: 1.2rem;
+                font-size: 1.4rem !important;
+                width: 1.4rem !important;
+                height: 1.4rem !important;
+                text-align: center !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                /* Ensure symbols render as text, not emoji */
+                font-variant-emoji: text;
+                -webkit-font-feature-settings: "liga" off;
             }
             
+            /* Mobile: Back button bigger, more horizontal padding */
             .back-button {
-                top: 2rem;
-                left: 2.5rem;
-                font-size: 1.5rem;
+                top: clamp(1.5rem, 3vw, 2rem) !important;
+                left: clamp(2rem, 4.5vw, 2.5rem) !important;
+                font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
             }
             
+            .back-button:focus {
+                outline: none !important;
+            }
+            
+            .back-button:active {
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            
+            .project-back-button {
+                top: clamp(1.5rem, 3vw, 2rem) !important;
+                font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                left: clamp(2rem, 4.5vw, 2.5rem) !important;
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            
+            .project-back-button:focus {
+                outline: none !important;
+            }
+            
+            .project-back-button:active {
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            
+            /* Mobile: Name and year bigger, moved up higher, same horizontal padding as links */
+            .name-section {
+                position: fixed;
+                top: auto;
+                bottom: 60%;
+                left: 0;
+                padding: clamp(2rem, 4vw, 4rem) clamp(3rem, 8vw, 5.5rem);
+                padding-bottom: 0;
+                padding-left: clamp(3rem, 8vw, 5.5rem) !important;
+                padding-right: clamp(3rem, 8vw, 5.5rem) !important;
+                transform: translateY(0);
+            }
+            
+            .name {
+                font-size: clamp(2rem, 5vw, 2.5rem) !important;
+                margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem) !important;
+            }
+            
+            .year {
+                font-size: clamp(2rem, 5vw, 2.5rem) !important;
+                margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem) !important;
+            }
+            
+            /* Mobile: Links right underneath year text, almost zero spacing, same horizontal padding */
+            .links-section {
+                position: fixed;
+                top: auto;
+                bottom: 60%;
+                left: 0;
+                padding: 0 clamp(3rem, 8vw, 5.5rem);
+                padding-top: 0;
+                transform: translateY(calc(100% - 2.5rem));
+                flex-direction: column;
+                align-items: flex-start;
+                gap: clamp(0.05rem, 0.1vw, 0.1rem);
+            }
+            
+            .nav-link {
+                font-size: clamp(1.25rem, 3vw, 1.5rem) !important;
+            }
+            
+            /* Mobile: Carousel image on bottom half */
+            .timeline-carousel {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: clamp(150px, 35vw, 220px);
+                max-width: clamp(150px, 35vw, 220px);
+                padding-bottom: clamp(2rem, 5vh, 4rem);
+            }
+            
+            /* Mobile: About page - simple layout matching reference, same horizontal padding as home page */
             .about-page-container {
                 flex-direction: column;
-                padding: 4rem 5.5rem;
-                gap: 3rem;
+                padding: 0;
+                gap: 0;
+                align-items: stretch;
             }
             
-            .project-page-container {
-                padding: 4rem 5.5rem;
+            /* Mobile: Completely reset about-right for mobile */
+            .about-right {
+                order: -1 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                padding-top: clamp(3rem, 6vw, 5rem) !important;
+                padding-left: clamp(1rem, 3vw, 2rem) !important;
+                padding-right: clamp(1rem, 3vw, 2rem) !important;
+                padding-bottom: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: transparent !important;
+                background-color: transparent !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                overflow: visible !important;
+                position: relative !important;
+                flex: none !important;
+            }
+            
+            /* Force about-right to be visible */
+            #about-page.active .about-right,
+            #about-page .about-right,
+            #about-page.active .about-page-container .about-right,
+            #about-page .about-page-container .about-right,
+            .about-page-container .about-right {
+                opacity: 1 !important;
+                visibility: visible !important;
+                display: flex !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+            }
+            
+            /* Mobile: Completely reset about-image for mobile */
+            .about-image {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                min-width: 0 !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                object-fit: contain !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                background: transparent !important;
+                background-color: transparent !important;
+                filter: none !important;
+                -webkit-filter: none !important;
+                position: relative !important;
+                z-index: 10 !important;
+            }
+            
+            /* Force about-image to be visible with all possible selectors */
+            #about-page.active .about-image,
+            #about-page .about-image,
+            #about-page.active .about-right .about-image,
+            #about-page .about-right .about-image,
+            .about-right .about-image,
+            .about-right img,
+            img.about-image,
+            #about-page.active .about-page-container .about-image,
+            #about-page .about-page-container .about-image,
+            .about-page-container .about-image,
+            .about-page-container img {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                min-width: 0 !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                background: transparent !important;
+                background-color: transparent !important;
+                filter: none !important;
+                -webkit-filter: none !important;
             }
             
             .about-left {
+                width: 100%;
+                padding-left: clamp(1rem, 3vw, 2rem) !important;
+                padding-right: clamp(1rem, 3vw, 2rem) !important;
+                padding-top: clamp(2rem, 4vw, 3rem) !important;
+                padding-bottom: clamp(2rem, 4vw, 4rem);
+            }
+            
+            /* Mobile: Bigger bio and links text */
+            .about-paragraph {
+                font-size: clamp(1rem, 2.5vw, 1.2rem) !important;
+                line-height: 1.5 !important;
+            }
+            
+            .email-link,
+            .about-link {
+                font-size: clamp(1rem, 2.5vw, 1.2rem) !important;
+            }
+            
+            .project-page-container {
+                padding: clamp(2rem, 4vw, 4rem) clamp(3rem, 8vw, 5.5rem);
+                gap: clamp(2rem, 4vw, 3rem);
+            }
+            
+            .project-left {
                 flex: 1;
                 max-width: 100%;
             }
             
-            .about-right {
+            .project-right {
                 width: 100%;
-                height: 35vh;
+                max-width: 100%;
             }
             
             .project-image-container {
                 max-width: 100% !important;
                 min-width: 0;
             }
+            
+            /* Mobile: Project overlay - image centered above halfway line */
+            .timeline-carousel.zoomed {
+                top: 44vh !important;
+                left: 50% !important;
+                transform-origin: center center !important;
+                transform: translateX(-50%) translateY(-50%) scale(1.28) !important;
+            }
+            
+            /* Mobile: Project content container - positioned below zoomed image */
+            .project-detail-overlay .project-content-container {
+                position: fixed !important;
+                top: calc(30vh + 300px) !important;
+                left: 50% !important;
+                transform: translateX(-50%) translateX(55px) !important;
+                width: 100% !important;
+                max-width: 520px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                padding: 0 clamp(2.5rem, 6vw, 4.5rem) !important;
+                height: auto !important;
+            }
+            
+            /* Mobile: Project left - title and year only */
+            .project-detail-overlay .project-left {
+                position: relative !important;
+                left: auto !important;
+                top: auto !important;
+                transform: none !important;
+                flex: 0 0 auto !important;
+                max-width: 320px !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                column-gap: clamp(2rem, 5vw, 3rem) !important;
+                align-items: start !important;
+                margin-top: 12px !important;
+            }
+
+            .project-detail-overlay .project-left > * {
+                grid-column: 1;
+                margin-top: 0 !important;
+            }
+            
+            /* Mobile: Show role and design on mobile */
+            .project-detail-overlay .project-role,
+            .project-detail-overlay .project-design {
+                display: block !important;
+                font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+            }
+
+            .project-detail-overlay .project-company {
+                display: block !important;
+                font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+            }
+            
+            /* Mobile: Project right - contributors only (no image) */
+            .project-detail-overlay .project-right {
+                display: flex !important;
+                flex: 0 0 auto !important;
+                max-width: 220px !important;
+                align-items: flex-start !important;
+                justify-content: flex-end !important;
+            }
+
+            .project-detail-overlay .project-right .project-image-container {
+                display: none !important;
+            }
+
+            /* Mobile: Contributors on the right column */
+            .project-detail-overlay .project-contributors {
+                grid-column: 2 !important;
+                grid-row: 1 / span 6 !important;
+                justify-self: start !important;
+                text-align: left !important;
+                margin-top: -70px !important;
+                transform: translateY(-28px) !important;
+                padding-top: 0 !important;
+                align-self: start !important;
+                margin-bottom: 0 !important;
+            }
+
+            .project-detail-overlay .project-contributor {
+                font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+            }
+
+            .project-detail-overlay .project-title,
+            .project-detail-overlay .project-year {
+                font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+            }
+
+            /* Mobile: Smooth opacity fades to avoid blink on zoom out */
+            .name-section,
+            .links-section,
+            .theme-toggle,
+            .project-detail-overlay .project-left {
+                transition: opacity 0.35s ease !important;
+            }
+
         }
         
         @media (max-width: 480px) {
             .theme-toggle {
-                top: 1.5rem;
-                right: 1.5rem;
+                top: clamp(1.8rem, 3.5vw, 2.3rem) !important;
+                right: clamp(1.5rem, 3.5vw, 2rem) !important;
+                left: auto !important;
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+                /* Align vertically with chevron - match back button top position exactly */
+                align-items: flex-start !important;
+            }
+            
+            /* Mobile: Theme toggle aligned vertically with back button */
+            .back-button {
+                top: clamp(1rem, 2vw, 1.5rem) !important;
+            }
+            
+            .project-back-button {
+                top: clamp(1rem, 2vw, 1.5rem) !important;
+            }
+            
+            .theme-toggle:focus {
+                outline: none !important;
+            }
+            
+            .theme-toggle:active {
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
             }
             
             .theme-toggle .sun-icon,
             .theme-toggle .moon-icon {
-                font-size: 1.2rem;
+                font-size: 1.4rem !important;
+                width: 1.4rem !important;
+                height: 1.4rem !important;
+                text-align: center !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                /* Ensure symbols render as text, not emoji */
+                font-variant-emoji: text;
+                -webkit-font-feature-settings: "liga" off;
             }
             
+            /* Mobile: Back button bigger, more horizontal padding */
             .back-button {
-                top: 1.5rem;
-                left: 1.5rem;
-                font-size: 1.5rem;
+                top: clamp(1rem, 2vw, 1.5rem);
+                left: clamp(1.5rem, 3.5vw, 2rem) !important;
+                font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            
+            .back-button:focus {
+                outline: none !important;
+            }
+            
+            .back-button:active {
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            
+            .project-back-button {
+                font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                left: clamp(1.5rem, 3.5vw, 2rem) !important;
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            
+            .project-back-button:focus {
+                outline: none !important;
+            }
+            
+            .project-back-button:active {
+                outline: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            
+            .name-section {
+                padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 5vw, 3.5rem);
+            }
+            
+            .links-section {
+                padding: clamp(1.5rem, 3vw, 2.5rem) clamp(3rem, 7vw, 5.5rem) clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 5vw, 3.5rem);
             }
             
             .about-page-container {
-                padding: 2.5rem 3.5rem;
+                padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 5vw, 3.5rem);
             }
             
             .project-page-container {
-                padding: 4rem 5.5rem;
+                padding: clamp(1.5rem, 3vw, 4rem) clamp(2rem, 5vw, 5.5rem);
             }
         }
     </style>
 </head>
 <body>
+    <!-- Theme Toggle - Always Visible, Outside Page Structure -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <span class="sun-icon"></span>
+        <span class="moon-icon">☾</span>
+    </button>
+
+    
     <!-- Home Page -->
     <div id="home-page" class="page home-page active">
-        <!-- Theme Toggle - Top Left -->
-        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
-            <span class="sun-icon">☀</span>
-            <span class="moon-icon">☾</span>
-        </button>
         
         <!-- Name and Year - Top Left -->
         <div class="name-section">
@@ -1016,12 +2064,6 @@
         
         <!-- Project Detail Overlay - Zoom Effect -->
         <div class="project-detail-overlay" id="project-overlay">
-            <!-- Theme Toggle - Top Right -->
-            <button class="theme-toggle" aria-label="Toggle dark mode">
-                <span class="sun-icon">☀</span>
-                <span class="moon-icon">☾</span>
-            </button>
-            
             <!-- Back Button - Top Left -->
             <a href="#" class="back-button project-back-button" id="project-back-button">‹</a>
             
@@ -1031,7 +2073,9 @@
                     <h2 class="project-title">Aiva</h2>
                     <p class="project-role">Co-Founder</p>
                     <p class="project-design">Interface Design</p>
+                    <p class="project-company">Arceus</p>
                     <p class="project-year">2025</p>
+                    <a href="https://arceus.ca" target="_blank" class="project-link-arrow">↗</a>
                     
                     <div class="project-contributors">
                         <span class="project-contributor">Tyler Buchanan</span>
@@ -1040,48 +2084,44 @@
                         <span class="project-contributor">Dujin Kim</span>
                     </div>
                 </div>
+                <div class="project-right">
+                    <div class="project-image-container">
+                        <img src="project-light.png" alt="Aiva Project" class="project-image light-image">
+                        <img src="project-dark.png" alt="Aiva Project" class="project-image dark-image">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- About Page -->
     <div id="about-page" class="page">
-        <!-- Theme Toggle - Top Right -->
-        <button class="theme-toggle" aria-label="Toggle dark mode">
-            <span class="sun-icon">☀</span>
-            <span class="moon-icon">☾</span>
-        </button>
-        
         <!-- Back Button - Top Left -->
         <a href="#" class="back-button" data-page="home">‹</a>
 
         <!-- About Content -->
         <div class="about-page-container">
             <div class="about-left">
-                <p class="about-paragraph">
-                    Tyler Buchanan is an entrepreneur and interface designer based in Vancouver, British Columbia. His work can be seen in products from his work with Arceus building Aiva. He is currently working on new projects while extending his education. Outside of design, Tyler spends his free time mountain biking, snowboarding, rock climbing, and birding.
-                </p>
-                <div class="about-links">
-                    <a href="mailto:tyler.buchanan.a@gmail.com" class="email-link">Email</a>
-                    <a href="https://github.com/Buchanz" target="_blank" class="about-link">GitHub</a>
-                    <a href="https://www.linkedin.com/in/tyler-buchanan-b8bb29230" target="_blank" class="about-link">LinkedIn</a>
+                <div class="about-text-wrap">
+                    <p class="about-paragraph">
+                        Tyler Buchanan is an entrepreneur and interface designer based in Vancouver, British Columbia. His work can be seen in products from his work with Arceus building Aiva. He is currently working on new projects while extending his education. Outside of design, Tyler spends his free time mountain biking, snowboarding, rock climbing, and birding.
+                    </p>
+                    <div class="about-links">
+                        <a href="mailto:tyler.buchanan.a@gmail.com" class="email-link">Email</a>
+                        <a href="https://github.com/Buchanz" target="_blank" class="about-link">GitHub</a>
+                        <a href="https://www.linkedin.com/in/tyler-buchanan-b8bb29230" target="_blank" class="about-link">LinkedIn</a>
+                    </div>
                 </div>
             </div>
             
             <div class="about-right">
-                <img src="about-image.png?v=4" alt="Tyler Buchanan" class="about-image">
+                <img src="about-image.png?v=16" alt="Tyler Buchanan" class="about-image" loading="eager">
             </div>
         </div>
     </div>
 
     <!-- Project Detail Page -->
     <div id="project-page" class="page">
-        <!-- Theme Toggle - Top Right -->
-        <button class="theme-toggle" aria-label="Toggle dark mode">
-            <span class="sun-icon">☀</span>
-            <span class="moon-icon">☾</span>
-        </button>
-        
         <!-- Back Button - Top Left -->
         <a href="#" class="back-button" data-page="home">‹</a>
 
@@ -1091,6 +2131,7 @@
                 <h2 class="project-title">Aiva</h2>
                 <p class="project-role">Co-Founder</p>
                 <p class="project-design">Interface Design</p>
+                <p class="project-company">Arceus</p>
                 <p class="project-year">2025</p>
                 
                 <div class="project-contributors">
@@ -1161,8 +2202,191 @@
                         document.body.style.overflow = 'auto';
                         document.documentElement.style.overflow = 'auto';
                     }
+                    
+                    if (pageId === 'about-page') {
+                        alignAboutTextToImageTop();
+                        fitAboutTextToImageBelow800();
+                    }
+                    
                 }
             }, delay);
+        }
+
+        // Align home carousel bottom padding to match project page image bottom padding (desktop only)
+        function alignHomeCarouselToProjectBottom() {
+            const root = document.documentElement;
+            const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+            if (!isDesktop) {
+                root.style.setProperty('--carousel-offset', '0px');
+                return;
+            }
+
+            const homeImage = document.querySelector('.timeline-carousel .carousel-image.light-image') ||
+                document.querySelector('.timeline-carousel .carousel-image');
+            const projectImage = document.querySelector('#project-page .project-image.light-image') ||
+                document.querySelector('#project-page .project-image');
+
+            if (!homeImage || !projectImage) return;
+
+            const waitForImage = (img) => new Promise((resolve) => {
+                if (img.complete && img.naturalWidth > 0) return resolve();
+                img.addEventListener('load', () => resolve(), { once: true });
+            });
+
+            Promise.all([waitForImage(homeImage), waitForImage(projectImage)]).then(() => {
+                requestAnimationFrame(() => {
+                    const homeRect = homeImage.getBoundingClientRect();
+                    const projectRect = projectImage.getBoundingClientRect();
+                    if (!homeRect.height || !projectRect.height) return;
+                    const projectBottomPadding = window.innerHeight - projectRect.bottom;
+                    const desiredHomeBottom = window.innerHeight - projectBottomPadding - 175;
+                    const delta = desiredHomeBottom - homeRect.bottom;
+                    root.style.setProperty('--carousel-offset', `${Math.round(delta)}px`);
+                });
+            });
+        }
+
+        // Align about text top with about image top (desktop only)
+        function alignAboutTextToImageTop() {
+            const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+            const aboutPage = document.getElementById('about-page');
+            const aboutLeft = document.querySelector('.about-left');
+            const aboutImage = document.querySelector('.about-image');
+
+            if (!aboutLeft || !aboutImage) return;
+            if (!isDesktop || !aboutPage || !aboutPage.classList.contains('active')) {
+                aboutLeft.style.transform = '';
+                return;
+            }
+
+            const waitForImage = (img) => new Promise((resolve) => {
+                if (img.complete && img.naturalWidth > 0) return resolve();
+                img.addEventListener('load', () => resolve(), { once: true });
+            });
+
+            waitForImage(aboutImage).then(() => {
+                requestAnimationFrame(() => {
+                    const textRect = aboutLeft.getBoundingClientRect();
+                    const imageRect = aboutImage.getBoundingClientRect();
+                    if (!textRect.height || !imageRect.height) return;
+                    const delta = imageRect.top - textRect.top;
+                    aboutLeft.style.transform = `translateY(${Math.round(delta)}px)`;
+                });
+            });
+        }
+
+        // Scale about text to fit within image height below 800px (desktop layout)
+        function fitAboutTextToImageBelow800() {
+            const isDesktop = window.matchMedia('(min-width: 0px)').matches;
+            const allowDynamic = window.matchMedia('(max-width: 799px)').matches;
+            const aboutPage = document.getElementById('about-page');
+            const aboutLeft = document.querySelector('.about-left');
+            const aboutWrap = document.querySelector('.about-text-wrap');
+            const aboutImage = document.querySelector('.about-image');
+
+            if (!aboutLeft || !aboutWrap || !aboutImage) return;
+            if (!isDesktop || !allowDynamic || !aboutPage || !aboutPage.classList.contains('active')) {
+                aboutLeft.style.removeProperty('--about-image-height');
+                aboutLeft.style.setProperty('--about-text-scale', '1');
+                return;
+            }
+
+            const waitForImage = (img) => new Promise((resolve) => {
+                if (img.complete && img.naturalWidth > 0) return resolve();
+                img.addEventListener('load', () => resolve(), { once: true });
+            });
+
+            let attempts = 0;
+            const apply = () => {
+                requestAnimationFrame(() => {
+                    const imageRect = aboutImage.getBoundingClientRect();
+                    if (!imageRect.height) {
+                        if (attempts < 5) {
+                            attempts += 1;
+                            setTimeout(apply, 60);
+                        }
+                        return;
+                    }
+
+                    aboutLeft.style.setProperty('--about-image-height', `${Math.round(imageRect.height)}px`);
+
+                    // Measure at scale 1 to avoid feedback loops
+                    aboutLeft.style.setProperty('--about-text-scale', '1');
+                    const textHeight = aboutWrap.scrollHeight;
+                    const maxHeight = imageRect.height;
+                    if (!textHeight || !maxHeight) return;
+
+                    const scaleByHeight = maxHeight / textHeight;
+                    const scale = Math.min(1, scaleByHeight);
+                    aboutLeft.style.setProperty('--about-text-scale', scale.toFixed(3));
+
+                    alignAboutTextToImageTop();
+                });
+            };
+
+            waitForImage(aboutImage).then(() => {
+                apply();
+            });
+        }
+
+        let carouselPaddingRatio = null;
+
+        // Capture the current 1920 layout as baseline, then preserve top/bottom padding ratio
+        // only below the chosen breakpoint (>=1800 stays locked).
+        function initCarouselPaddingRatio() {
+            const homeImage = document.querySelector('.timeline-carousel .carousel-image.light-image') ||
+                document.querySelector('.timeline-carousel .carousel-image');
+            if (!homeImage) return;
+
+            const waitForImage = (img) => new Promise((resolve) => {
+                if (img.complete && img.naturalWidth > 0) return resolve();
+                img.addEventListener('load', () => resolve(), { once: true });
+            });
+
+            waitForImage(homeImage).then(() => {
+                requestAnimationFrame(() => {
+                    const rect = homeImage.getBoundingClientRect();
+                    const bottomPadding = window.innerHeight - rect.bottom;
+                    if (!rect.height || bottomPadding <= 0) return;
+                    carouselPaddingRatio = rect.top / bottomPadding;
+                    applyCarouselPaddingRatio();
+                });
+            });
+        }
+
+        function applyCarouselPaddingRatio() {
+            const root = document.documentElement;
+            const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+            const allowDynamic = window.matchMedia('(max-width: 1799px)').matches;
+            if (!isDesktop || !allowDynamic || carouselPaddingRatio === null) {
+                alignHomeCarouselToProjectBottom();
+                return;
+            }
+
+            const homeImage = document.querySelector('.timeline-carousel .carousel-image.light-image') ||
+                document.querySelector('.timeline-carousel .carousel-image');
+            if (!homeImage) return;
+
+            const rect = homeImage.getBoundingClientRect();
+            if (!rect.height) return;
+
+            const available = window.innerHeight - rect.height;
+            if (available <= 0) return;
+
+            const desiredTop = (carouselPaddingRatio * available) / (1 + carouselPaddingRatio);
+            const minTop = 40;
+            const maxTop = Math.max(minTop, window.innerHeight - rect.height - 40);
+            const clampedTop = Math.min(Math.max(desiredTop, minTop), maxTop);
+            const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+            const baseTop = (6.5 + 7.5) * rem;
+            const offset = clampedTop - baseTop;
+            root.style.setProperty('--carousel-offset', `${Math.round(offset)}px`);
+        }
+
+        function updateCarouselBreakpointOffset() {
+            const root = document.documentElement;
+            const bpOffset = window.matchMedia('(max-width: 1600px)').matches ? 60 : 0;
+            root.style.setProperty('--carousel-bp-offset', `${bpOffset}px`);
         }
 
         // Theme toggle functionality
@@ -1176,13 +2400,21 @@
             // Handle theme toggle clicks on all toggle buttons
             themeToggles.forEach(toggle => {
                 toggle.addEventListener('click', function() {
-                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const root = document.documentElement;
+                    const currentTheme = root.getAttribute('data-theme');
                     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                    
-                    document.documentElement.setAttribute('data-theme', newTheme);
+
+                    // Temporarily disable image transitions to avoid blur
+                    root.classList.add('theme-instant');
+                    root.setAttribute('data-theme', newTheme);
                     localStorage.setItem('theme', newTheme);
+
+                    setTimeout(() => {
+                        root.classList.remove('theme-instant');
+                    }, 150);
                 });
             });
+            
         }
 
         // Wait for page to load
@@ -1191,7 +2423,17 @@
             
             // Initialize theme
             initTheme();
-            
+
+            // Preserve carousel padding ratio below 1800px (keep 1920 locked)
+            initCarouselPaddingRatio();
+            window.addEventListener('resize', applyCarouselPaddingRatio);
+            alignAboutTextToImageTop();
+            window.addEventListener('resize', alignAboutTextToImageTop);
+            fitAboutTextToImageBelow800();
+            window.addEventListener('resize', fitAboutTextToImageBelow800);
+            updateCarouselBreakpointOffset();
+            window.addEventListener('resize', updateCarouselBreakpointOffset);
+
             // Function to zoom out
             function zoomOut() {
                 const overlay = document.getElementById('project-overlay');
@@ -1211,9 +2453,10 @@
             // Manual scroll zoom control - smooth and controlled, only zoom in on scroll up
             let manualZoomLevel = 1.0;
             const minZoom = 1.0;
-            const maxZoom = 1.25;
+            const maxZoom = 1.35;
             const zoomStep = 0.03; // Larger step for more control
             const smoothTransition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            const zoomTargetLeftPx = 140;
             
             const carouselContainer = document.getElementById('carousel-container');
             const carouselEl = document.querySelector('.timeline-carousel');
@@ -1226,6 +2469,30 @@
                 const scale = level;
                 const zoomFactor = (level - minZoom) / (maxZoom - minZoom);
                 const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+                if (isMobile) {
+                    const fade = clampedZoomFactor;
+                    const homeFade = clampedZoomFactor <= 0 ? 1 : 0;
+                    const nameEl = document.querySelector('.name-section');
+                    const linksEl = document.querySelector('.links-section');
+                    const toggleEl = document.querySelector('.theme-toggle');
+                    if (nameEl) nameEl.style.opacity = homeFade.toFixed(3);
+                    if (linksEl) linksEl.style.opacity = homeFade.toFixed(3);
+                    if (toggleEl) toggleEl.style.opacity = homeFade.toFixed(3);
+
+                    const projectLeft = document.querySelector('.project-left');
+                    if (projectLeft) {
+                        projectLeft.style.opacity = fade.toFixed(3);
+                    }
+
+                    const overlay = document.getElementById('project-overlay');
+                    if (overlay) {
+                        overlay.style.opacity = fade.toFixed(3);
+                        overlay.style.visibility = fade > 0 ? 'visible' : 'hidden';
+                        overlay.style.pointerEvents = fade > 0 ? 'auto' : 'none';
+                    }
+                }
                 
                 if (level <= minZoom) {
                     // Reset to original position when fully zoomed out
@@ -1255,16 +2522,16 @@
                     if (scaleFactor === 0) {
                         leftValue = '50%';
                     } else if (scaleFactor === 1) {
-                        leftValue = 'calc(50% + 6rem)';
+                        leftValue = `calc(50% + ${zoomTargetLeftPx}px)`;
                     } else {
-                        const remInPixels = 6 * parseFloat(getComputedStyle(document.documentElement).fontSize);
-                        const offsetPercent = (remInPixels / window.innerWidth) * 100;
+                        const offsetPercent = (zoomTargetLeftPx / window.innerWidth) * 100;
                         const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
                         leftValue = `${interpolatedLeft}%`;
                     }
                     
                     carouselEl.style.setProperty('position', 'fixed', 'important');
-                    carouselEl.style.setProperty('top', 'calc(6.5rem + 6rem)', 'important');
+                    updateCarouselBreakpointOffset();
+                    carouselEl.style.setProperty('top', 'calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px))', 'important');
                     carouselEl.style.setProperty('left', leftValue, 'important');
                     carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
                     carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
@@ -1335,12 +2602,29 @@
                     const homePage = document.getElementById('home-page');
                     
                     if (!overlay || !homePage) return;
+
                     
                     // Apply zoom immediately during scroll - smooth continuous motion
                     // Same logic as zoom in, just works in reverse
                     const scale = manualZoomLevel;
                     const zoomFactor = (manualZoomLevel - minZoom) / (maxZoom - minZoom);
                     const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    if (isMobile) {
+                    const fade = clampedZoomFactor;
+                    const homeFade = clampedZoomFactor <= 0 ? 1 : 0;
+                        const nameEl = document.querySelector('.name-section');
+                        const linksEl = document.querySelector('.links-section');
+                        const toggleEl = document.querySelector('.theme-toggle');
+                        if (nameEl) nameEl.style.opacity = homeFade.toFixed(3);
+                        if (linksEl) linksEl.style.opacity = homeFade.toFixed(3);
+                        if (toggleEl) toggleEl.style.opacity = homeFade.toFixed(3);
+
+                        const projectLeft = document.querySelector('.project-left');
+                        if (projectLeft) {
+                            projectLeft.style.opacity = fade.toFixed(3);
+                        }
+                    }
                     
                     if (manualZoomLevel <= minZoom) {
                         // Reset to original position when fully zoomed out
@@ -1382,17 +2666,16 @@
                         // Scale goes from 1.0 to 1.25, normalize to 0-1 for position interpolation
                         const scaleFactor = (scale - minZoom) / (maxZoom - minZoom); // 0 to 1 based on scale
                         
-                        // Calculate left position: start at 50%, end at calc(50% + 6rem)
+                        // Calculate left position: start at 50%, end at target offset
                         // Use calc() to properly mix percentage and rem units
                         let leftValue;
                         if (scaleFactor === 0) {
                             leftValue = '50%';
                         } else if (scaleFactor === 1) {
-                            leftValue = 'calc(50% + 6rem)';
+                            leftValue = `calc(50% + ${zoomTargetLeftPx}px)`;
                         } else {
-                            // Interpolate: convert 6rem to pixels, then to percentage offset
-                            const remInPixels = 6 * parseFloat(getComputedStyle(document.documentElement).fontSize);
-                            const offsetPercent = (remInPixels / window.innerWidth) * 100;
+                            // Interpolate using target offset in pixels
+                            const offsetPercent = (zoomTargetLeftPx / window.innerWidth) * 100;
                             const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
                             leftValue = `${interpolatedLeft}%`;
                         }
@@ -1401,7 +2684,8 @@
                         // During active scrolling, use no transition for instant updates (smooth motion)
                         // Transition will be applied when scrolling stops for auto-complete
                         carouselEl.style.setProperty('position', 'fixed', 'important');
-                        carouselEl.style.setProperty('top', 'calc(6.5rem + 6rem)', 'important');
+                        updateCarouselBreakpointOffset();
+                        carouselEl.style.setProperty('top', 'calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px))', 'important');
                         carouselEl.style.setProperty('left', leftValue, 'important');
                         carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
                         carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
@@ -1443,7 +2727,7 @@
                         }
                     }
                 }, { passive: false });
-                
+
                 // Also handle scroll on the overlay when it's active (Aiva page)
                 const overlay = document.getElementById('project-overlay');
                 if (overlay) {
@@ -1481,11 +2765,28 @@
                         
                         const homePage = document.getElementById('home-page');
                         if (!homePage) return;
+
                         
                         // Calculate interpolation factor (0 to 1)
                         const zoomFactor = (manualZoomLevel - minZoom) / (maxZoom - minZoom);
                         const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
                         const scale = manualZoomLevel;
+                        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                        if (isMobile) {
+                        const fade = clampedZoomFactor;
+                        const homeFade = clampedZoomFactor <= 0 ? 1 : 0;
+                            const nameEl = document.querySelector('.name-section');
+                            const linksEl = document.querySelector('.links-section');
+                            const toggleEl = document.querySelector('.theme-toggle');
+                            if (nameEl) nameEl.style.opacity = homeFade.toFixed(3);
+                            if (linksEl) linksEl.style.opacity = homeFade.toFixed(3);
+                            if (toggleEl) toggleEl.style.opacity = homeFade.toFixed(3);
+
+                            const projectLeft = document.querySelector('.project-left');
+                            if (projectLeft) {
+                                projectLeft.style.opacity = fade.toFixed(3);
+                            }
+                        }
                         
                         if (manualZoomLevel <= minZoom) {
                             // Reset to original position when fully zoomed out
@@ -1520,17 +2821,16 @@
                             // Scale goes from 1.0 to 1.25, normalize to 0-1 for position interpolation
                             const scaleFactor = (scale - minZoom) / (maxZoom - minZoom); // 0 to 1 based on scale
                             
-                            // Calculate left position: start at 50%, end at calc(50% + 6rem)
+                            // Calculate left position: start at 50%, end at target offset
                             // Use calc() to properly mix percentage and rem units
                             let leftValue;
                             if (scaleFactor === 0) {
                                 leftValue = '50%';
                             } else if (scaleFactor === 1) {
-                                leftValue = 'calc(50% + 6rem)';
+                                leftValue = `calc(50% + ${zoomTargetLeftPx}px)`;
                             } else {
-                                // Interpolate: convert 6rem to pixels, then to percentage offset
-                                const remInPixels = 6 * parseFloat(getComputedStyle(document.documentElement).fontSize);
-                                const offsetPercent = (remInPixels / window.innerWidth) * 100;
+                                // Interpolate using target offset in pixels
+                                const offsetPercent = (zoomTargetLeftPx / window.innerWidth) * 100;
                                 const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
                                 leftValue = `${interpolatedLeft}%`;
                             }
@@ -1539,7 +2839,8 @@
                         // During active scrolling, use no transition for instant updates (smooth motion)
                         // Transition will be applied when scrolling stops for auto-complete
                         carouselEl.style.setProperty('position', 'fixed', 'important');
-                        carouselEl.style.setProperty('top', 'calc(6.5rem + 6rem)', 'important');
+                        updateCarouselBreakpointOffset();
+                        carouselEl.style.setProperty('top', 'calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px))', 'important');
                         carouselEl.style.setProperty('left', leftValue, 'important');
                         carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
                         carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
@@ -1580,6 +2881,7 @@
                             }
                         }
                     }, { passive: false });
+
                 }
             }
             
@@ -1608,8 +2910,9 @@
                 }
                 
                 // Handle click outside image/text on overlay (zoom out)
-                // Exclude theme toggle and back button
-                if (isOverlayActive && !projectLeft && !carouselImage && !carouselContainer && !themeToggle && !projectBackButton) {
+                // Exclude theme toggle, back button, and zoomed carousel
+                const zoomedCarousel = e.target.closest('.timeline-carousel.zoomed');
+                if (isOverlayActive && !projectLeft && !carouselImage && !carouselContainer && !themeToggle && !projectBackButton && !zoomedCarousel) {
                     e.preventDefault();
                     e.stopPropagation();
                     zoomOut();
@@ -1649,15 +2952,19 @@
                 
                 // Handle click outside content on About page (go back to home)
                 const aboutPage = document.getElementById('about-page');
-                const aboutPageContainer = e.target.closest('.about-page-container');
+                const aboutLeft = e.target.closest('.about-left');
+                const aboutRight = e.target.closest('.about-right');
+                const aboutImage = e.target.closest('.about-image');
+                const aboutParagraph = e.target.closest('.about-paragraph');
                 const aboutBackButton = e.target.closest('.back-button[data-page="home"]');
                 const aboutThemeToggle = e.target.closest('.theme-toggle');
                 const aboutLinks = e.target.closest('.about-links');
                 const aboutLink = e.target.closest('.about-link, .email-link');
                 
                 if (aboutPage && aboutPage.classList.contains('active')) {
-                    // If click is outside the content container, back button, theme toggle, and links
-                    if (!aboutPageContainer && !aboutBackButton && !aboutThemeToggle && !aboutLinks && !aboutLink) {
+                    // If click is outside the text field (about-left) and image field (about-right), 
+                    // but not on back button or theme toggle, go back to home
+                    if (!aboutLeft && !aboutRight && !aboutImage && !aboutParagraph && !aboutBackButton && !aboutThemeToggle && !aboutLinks && !aboutLink) {
                         e.preventDefault();
                         e.stopPropagation();
                         showPage('home-page');
