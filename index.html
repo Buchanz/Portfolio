@@ -166,6 +166,42 @@
         /* Home Page */
         .home-page {
             overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Custom cursor */
+        html, body, * {
+            cursor: none !important;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(160, 160, 160, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            mix-blend-mode: normal;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .custom-cursor {
+                display: none;
+            }
+        }
+
+        body.cursor-small .custom-cursor {
+            width: 20px;
+            height: 20px;
         }
         
         /* Timeline Carousel */
@@ -173,17 +209,149 @@
             position: fixed;
             top: calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px));
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(calc(-50% + var(--carousel-pan-x, 0px)));
             transform-origin: center bottom;
             width: 260px;
             max-width: 260px;
             z-index: 10;
+            background: transparent;
+            overflow: visible;
+            will-change: transform;
+            backface-visibility: hidden;
+            transition: left 2.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        top 2.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
+
         .carousel-container {
             position: relative;
             width: 100%;
             overflow: hidden;
+        }
+
+        /* Web-only: laptop + phone pair */
+        @media (min-width: 769px) {
+            :root {
+                --phone-image-height: 315px;
+                --laptop-image-height: 410px;
+            }
+
+            .timeline-carousel {
+                width: max-content;
+                max-width: none;
+            }
+
+            .carousel-container {
+                display: flex;
+                align-items: flex-end;
+                gap: 5.2rem;
+                padding-left: 3.5rem;
+                padding-right: 1rem;
+                width: max-content;
+                overflow: visible;
+                cursor: grab;
+                touch-action: pan-x;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                background: transparent;
+            }
+
+            .carousel-container.dragging {
+                cursor: grabbing;
+            }
+
+            .carousel-item {
+                display: flex;
+                align-items: flex-end;
+            }
+
+            .image-stack {
+                position: relative;
+                display: inline-block;
+            }
+
+            .laptop-stack {
+                height: var(--laptop-image-height, 330px);
+            }
+
+            .phone-stack {
+                height: var(--phone-image-height);
+                width: auto;
+                transform: translateX(12px);
+            }
+
+            .image-stack .carousel-image {
+                width: auto;
+                height: 100%;
+            }
+
+            .laptop-stack .carousel-image {
+                width: auto;
+                height: 100%;
+            }
+
+            .image-stack .carousel-image.dark-image {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .carousel-item {
+                transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+                transform-origin: center bottom;
+                will-change: transform;
+            }
+
+            .timeline-carousel.zoomed .carousel-item.active {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateX(0) scale(var(--active-zoom-scale));
+                transform-origin: center bottom;
+                transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .project-landing .timeline-carousel.zoomed .carousel-item.active {
+                transform: translateX(0) scale(1.42);
+            }
+
+            .timeline-carousel.zoomed .carousel-item.is-left {
+                transform: translateX(-120vw) scale(1);
+                opacity: 1;
+            }
+
+            .timeline-carousel.zoomed .carousel-item.is-right {
+                transform: translateX(120vw) scale(1);
+                opacity: 1;
+            }
+
+            .timeline-carousel:not(.zoomed) .carousel-item {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateX(0);
+            }
+
+            .timeline-carousel.zoomed {
+                width: max-content !important;
+                max-width: none !important;
+                top: calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px)) !important;
+                transform-origin: center bottom !important;
+            }
+
+            .timeline-carousel.zoomed .image-stack .carousel-image {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            .timeline-carousel.zoomed .laptop-stack .carousel-image {
+                width: auto !important;
+                height: 100% !important;
+            }
+
+            .timeline-carousel.zoomed .phone-stack .carousel-image {
+                width: auto !important;
+                height: 100% !important;
+            }
         }
         
         .carousel-image {
@@ -192,7 +360,12 @@
             object-fit: contain;
             display: block;
             transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            cursor: pointer;
+            cursor: default;
+            -webkit-user-drag: none;
+            user-select: none;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            will-change: transform, opacity;
         }
         
         .carousel-image:hover {
@@ -252,8 +425,103 @@
         
         @media (max-width: 768px) {
             .timeline-carousel {
-                width: 200px;
-                max-width: 200px;
+                width: max-content;
+                max-width: none;
+                left: 30px !important;
+                margin-left: 0 !important;
+                transform: translateX(0) translateY(-90px) !important;
+                top: calc(6.5rem + 6.0rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px)) !important;
+            }
+
+            .carousel-item {
+                display: block;
+            }
+
+            .carousel-item.active {
+                display: block;
+                transform: translateY(0) scale(1);
+                transform-origin: center bottom;
+            }
+
+            .timeline-carousel.zoomed .carousel-item {
+                display: block;
+            }
+
+            .carousel-container {
+                display: flex;
+                align-items: flex-end;
+                gap: 1.25rem;
+                overflow: visible;
+                padding-left: 0;
+            }
+
+            .laptop-stack {
+                height: 180px;
+            }
+
+            .phone-stack {
+                height: 140px;
+                width: auto;
+                transform: translateX(0);
+            }
+
+            .image-stack {
+                position: relative;
+                display: inline-block;
+            }
+
+            .image-stack .carousel-image {
+                width: auto;
+                height: 100%;
+            }
+
+            .image-stack .carousel-image.dark-image {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .timeline-carousel.zoomed .carousel-item.active {
+                transform: translateX(0) translateY(-80px) scale(var(--active-zoom-scale));
+                transform-origin: center bottom;
+                transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .timeline-carousel.zoomed .carousel-item.is-left {
+                transform: translateX(-120vw) scale(1);
+                transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .timeline-carousel.zoomed .carousel-item.is-right {
+                transform: translateX(120vw) scale(1);
+                transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .project-detail-overlay .project-left {
+                opacity: 0;
+                transition: opacity 0.35s ease;
+                transition-delay: 0s;
+            }
+
+            .project-detail-overlay.active .project-left {
+                opacity: 1;
+                transition-delay: 2.2s;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .home-page {
+                z-index: 1;
+            }
+
+            .timeline-carousel {
+                z-index: 3;
+            }
+
+            .home-page .name-section,
+            .home-page .links-section {
+                z-index: 1;
             }
         }
         
@@ -287,8 +555,8 @@
             }
 
             .about-right {
-                max-width: 32%;
-                width: 32%;
+                max-width: 34%;
+                width: 34%;
             }
 
             .about-paragraph {
@@ -338,8 +606,8 @@
             }
 
             .about-right {
-                max-width: 30%;
-                width: 30%;
+                max-width: 32%;
+                width: 32%;
             }
 
             .about-paragraph {
@@ -396,10 +664,10 @@
             }
 
             .about-right {
-                max-width: 34%;
-                width: 34%;
-                height: 42vh;
-                min-height: 42vh;
+                max-width: 36%;
+                width: 36%;
+                height: 44vh;
+                min-height: 44vh;
             }
 
             .about-paragraph {
@@ -452,10 +720,10 @@
             }
 
             .about-right {
-                max-width: 36%;
-                width: 36%;
-                height: 42vh;
-                min-height: 42vh;
+                max-width: 38%;
+                width: 38%;
+                height: 44vh;
+                min-height: 44vh;
             }
 
             .about-paragraph {
@@ -843,6 +1111,7 @@
             margin-bottom: clamp(0.3rem, 0.5vw, 0.5rem);
             transition: color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             line-height: 1.2;
+            white-space: nowrap;
         }
         
         .project-role {
@@ -940,6 +1209,43 @@
         /* Web view: project-right in overlay - hide image, use zoomed carousel instead */
         .project-detail-overlay .project-content-container .project-right {
             display: none;
+        }
+
+        @media (min-width: 769px) {
+            .timeline-carousel.zoomed {
+                left: 140px !important;
+                transform: translateX(0) !important;
+            }
+
+            .project-landing .timeline-carousel.zoomed {
+                left: 520px !important;
+                transform: translateX(0) !important;
+            }
+
+            .project-aiva .timeline-carousel.zoomed {
+                left: -60px !important;
+                transform: translateX(0) !important;
+                top: calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px)) !important;
+                transform-origin: center bottom !important;
+            }
+
+            .project-aiva .project-content-container {
+                left: 500px !important;
+            }
+
+            .project-aiva .timeline-carousel {
+                transition: transform 1.9s cubic-bezier(0.16, 1, 0.3, 1), top 1.9s cubic-bezier(0.16, 1, 0.3, 1), left 1.9s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .project-aiva .timeline-carousel.zoomed .carousel-image {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: auto;
+                filter: none;
+            }
+
+            .project-landing .project-content-container {
+                left: 220px !important;
+            }
         }
         
         .project-right .project-image-container {
@@ -1047,7 +1353,7 @@
             pointer-events: auto;
         }
         
-        /* Project content container - web view: text moved slightly to the left */
+        /* Project content container - web view: text moved further to the left */
         .project-content-container {
             display: flex;
             height: auto;
@@ -1057,7 +1363,7 @@
             justify-content: flex-start;
             position: fixed;
             top: 50%;
-            left: calc(50% - 320px) !important; /* Position slightly more to the left */
+            left: 260px !important; /* Default text position */
             transform: translateY(-50%) !important; /* Only translate Y to center vertically */
             width: auto;
             max-width: 500px;
@@ -1086,7 +1392,7 @@
             top: calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px)) !important;
             left: calc(50% + 140px) !important; /* Restore project-page horizontal position */
             transform-origin: center bottom !important;
-            transform: translateX(-50%) scale(1.35) !important; /* Expand upward, no vertical shift */
+            transform: translateX(-50%) !important; /* No container scale; active item scales */
             z-index: 101 !important;
             width: 260px !important;
             pointer-events: none;
@@ -1320,6 +1626,8 @@
             --text-color: #000000;
             --text-secondary: #888888;
             --text-secondary-hover: #000000;
+            --carousel-pan-x: -400px;
+            --active-zoom-scale: 1.35;
         }
         
         [data-theme="dark"] {
@@ -1502,11 +1810,11 @@
         
         .about-right {
             flex: 0 0 auto;
-            max-width: 35%;
-            width: 35%;
-            height: 35vh;
-            min-height: 35vh;
-            background-color: transparent;
+            max-width: 38%;
+            width: 38%;
+            height: 40vh;
+            min-height: 40vh;
+            background: none;
             display: flex !important;
             align-items: center;
             justify-content: center;
@@ -1556,13 +1864,13 @@
         .about-image {
             max-width: 100%;
             max-height: 100%;
-            width: auto;
+            width: 100%;
             height: auto;
-            min-width: 200px;
-            min-height: 200px;
+            min-width: 0;
+            min-height: 0;
             object-fit: contain;
             object-position: center;
-            filter: grayscale(100%) !important;
+            filter: none !important;
             display: block !important;
             opacity: 1 !important;
             visibility: visible !important;
@@ -1713,8 +2021,8 @@
                 order: -1 !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                height: auto !important;
-                min-height: 0 !important;
+                height: clamp(240px, 55vw, 360px) !important;
+                min-height: clamp(240px, 55vw, 360px) !important;
                 max-height: none !important;
                 padding-top: clamp(3rem, 6vw, 5rem) !important;
                 padding-left: clamp(1rem, 3vw, 2rem) !important;
@@ -1723,13 +2031,17 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                background: transparent !important;
-                background-color: transparent !important;
+                background: none !important;
                 opacity: 1 !important;
                 visibility: visible !important;
                 overflow: visible !important;
                 position: relative !important;
                 flex: none !important;
+                z-index: 2 !important;
+            }
+
+            .about-left {
+                z-index: 1 !important;
             }
             
             /* Force about-right to be visible */
@@ -1750,18 +2062,20 @@
             .about-image {
                 width: 100% !important;
                 max-width: 100% !important;
-                height: auto !important;
+                height: 100% !important;
                 min-width: 0 !important;
                 min-height: 0 !important;
                 max-height: none !important;
                 object-fit: contain !important;
+                object-position: center !important;
                 display: block !important;
                 opacity: 1 !important;
                 visibility: visible !important;
-                background: transparent !important;
+                background: none !important;
                 background-color: transparent !important;
                 filter: none !important;
                 -webkit-filter: none !important;
+                mix-blend-mode: normal !important;
                 position: relative !important;
                 z-index: 10 !important;
             }
@@ -1787,10 +2101,11 @@
                 display: block !important;
                 opacity: 1 !important;
                 visibility: visible !important;
-                background: transparent !important;
+                background: none !important;
                 background-color: transparent !important;
                 filter: none !important;
                 -webkit-filter: none !important;
+                mix-blend-mode: normal !important;
             }
             
             .about-left {
@@ -1832,18 +2147,35 @@
                 min-width: 0;
             }
             
-            /* Mobile: Project overlay - image centered above halfway line */
+            /* Mobile: Project overlay - image larger and lower (text stays put) */
             .timeline-carousel.zoomed {
-                top: 44vh !important;
+                top: 102vh !important;
                 left: 50% !important;
-                transform-origin: center center !important;
-                transform: translateX(-50%) translateY(-50%) scale(1.28) !important;
+                transform-origin: center bottom !important;
+                transform: translateX(-50%) translateY(-50%) scale(4.0) !important;
+            }
+
+            .project-landing .timeline-carousel.zoomed {
+                left: calc(88% + 40px) !important;
+                transform: translateX(-50%) translateY(-50%) scale(4.0) !important;
+            }
+
+            .project-aiva .timeline-carousel.zoomed {
+                left: calc(10% - 75px) !important;
+                top: calc(102vh + 70px) !important;
+                transform: translateX(-50%) translateY(-50%) scale(3.9) !important;
+            }
+
+            .timeline-carousel.zoomed .carousel-image {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: auto;
+                filter: none;
             }
             
             /* Mobile: Project content container - positioned below zoomed image */
             .project-detail-overlay .project-content-container {
                 position: fixed !important;
-                top: calc(30vh + 300px) !important;
+                top: calc(26vh + 280px) !important;
                 left: 50% !important;
                 transform: translateX(-50%) translateX(55px) !important;
                 width: 100% !important;
@@ -2045,8 +2377,18 @@
         <!-- Timeline Carousel -->
         <div class="timeline-carousel">
             <div class="carousel-container" id="carousel-container">
-                <img src="project-light.png" alt="Aiva Project" class="carousel-image light-image">
-                <img src="project-dark.png" alt="Aiva Project" class="carousel-image dark-image">
+                <div class="carousel-item" data-project="landing">
+                    <div class="image-stack laptop-stack">
+                        <img src="Macbook-Arceus-Website.png" alt="Landing Page" class="carousel-image light-image">
+                        <img src="Macbook-Arceus-Website.png" alt="Landing Page" class="carousel-image dark-image">
+                    </div>
+                </div>
+                <div class="carousel-item active" data-project="aiva">
+                    <div class="image-stack phone-stack">
+                        <img src="project-light.png" alt="Aiva Project" class="carousel-image light-image">
+                        <img src="project-dark.png" alt="Aiva Project" class="carousel-image dark-image">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2115,7 +2457,7 @@
             </div>
             
             <div class="about-right">
-                <img src="about-image.png?v=16" alt="Tyler Buchanan" class="about-image" loading="eager">
+                <img src="about-image.png?v=19" alt="Tyler Buchanan" class="about-image" loading="eager">
             </div>
         </div>
     </div>
@@ -2221,7 +2563,8 @@
                 return;
             }
 
-            const homeImage = document.querySelector('.timeline-carousel .carousel-image.light-image') ||
+            const homeImage = document.querySelector('.timeline-carousel .carousel-item[data-project="aiva"] .carousel-image.light-image') ||
+                document.querySelector('.timeline-carousel .carousel-image.light-image') ||
                 document.querySelector('.timeline-carousel .carousel-image');
             const projectImage = document.querySelector('#project-page .project-image.light-image') ||
                 document.querySelector('#project-page .project-image');
@@ -2334,7 +2677,8 @@
         // Capture the current 1920 layout as baseline, then preserve top/bottom padding ratio
         // only below the chosen breakpoint (>=1800 stays locked).
         function initCarouselPaddingRatio() {
-            const homeImage = document.querySelector('.timeline-carousel .carousel-image.light-image') ||
+            const homeImage = document.querySelector('.timeline-carousel .carousel-item[data-project="aiva"] .carousel-image.light-image') ||
+                document.querySelector('.timeline-carousel .carousel-image.light-image') ||
                 document.querySelector('.timeline-carousel .carousel-image');
             if (!homeImage) return;
 
@@ -2363,7 +2707,8 @@
                 return;
             }
 
-            const homeImage = document.querySelector('.timeline-carousel .carousel-image.light-image') ||
+            const homeImage = document.querySelector('.timeline-carousel .carousel-item[data-project="aiva"] .carousel-image.light-image') ||
+                document.querySelector('.timeline-carousel .carousel-image.light-image') ||
                 document.querySelector('.timeline-carousel .carousel-image');
             if (!homeImage) return;
 
@@ -2381,6 +2726,80 @@
             const baseTop = (6.5 + 7.5) * rem;
             const offset = clampedTop - baseTop;
             root.style.setProperty('--carousel-offset', `${Math.round(offset)}px`);
+        }
+
+        const projects = {
+            aiva: {
+                title: 'Aiva',
+                role: 'Co-Founder',
+                design: 'Interface Design',
+                company: 'Arceus',
+                year: '2025',
+                contributors: ['Tyler Buchanan', 'Ivan Guo', 'Sam Gupta', 'Dujin Kim'],
+                link: 'https://arceus.ca',
+                lightImage: 'project-light.png',
+                darkImage: 'project-dark.png'
+            },
+            landing: {
+                title: 'Landing Page',
+                role: 'Co-Founder',
+                design: 'Interface Design',
+                company: 'Arceus',
+                year: '2025',
+                contributors: ['Tyler Buchanan'],
+                link: 'https://arceus.ca',
+                lightImage: 'Macbook-Arceus-Website.png',
+                darkImage: 'Macbook-Arceus-Website.png'
+            }
+        };
+
+        let currentProjectId = 'aiva';
+        let activeZoomScale = 1.35;
+        let activeZoomLeftPx = 140;
+
+        function setActiveProject(projectId) {
+            const data = projects[projectId];
+            if (!data) return;
+
+            document.body.classList.toggle('project-landing', projectId === 'landing');
+            document.body.classList.toggle('project-aiva', projectId === 'aiva');
+            currentProjectId = projectId;
+            if (projectId === 'aiva') {
+                activeZoomScale = 1.9;
+                activeZoomLeftPx = -740;
+            } else if (projectId === 'landing') {
+                activeZoomScale = 1.35;
+                activeZoomLeftPx = 400;
+            } else {
+                activeZoomScale = 1.35;
+                activeZoomLeftPx = 140;
+            }
+            document.documentElement.style.setProperty('--active-zoom-scale', activeZoomScale.toFixed(3));
+
+            document.querySelectorAll('.project-title').forEach(el => { el.textContent = data.title; });
+            document.querySelectorAll('.project-role').forEach(el => { el.textContent = data.role; });
+            document.querySelectorAll('.project-design').forEach(el => { el.textContent = data.design; });
+            document.querySelectorAll('.project-company').forEach(el => { el.textContent = data.company; });
+            document.querySelectorAll('.project-year').forEach(el => { el.textContent = data.year; });
+            document.querySelectorAll('.project-link-arrow').forEach(el => { el.setAttribute('href', data.link); });
+
+            document.querySelectorAll('.project-contributors').forEach(el => {
+                el.innerHTML = data.contributors.map(name => `<span class="project-contributor">${name}</span>`).join('');
+            });
+
+            document.querySelectorAll('.project-image.light-image').forEach(el => { el.setAttribute('src', data.lightImage); });
+            document.querySelectorAll('.project-image.dark-image').forEach(el => { el.setAttribute('src', data.darkImage); });
+        }
+
+        function setActiveCarouselItem(item) {
+            if (!item) return;
+            const items = Array.from(document.querySelectorAll('.carousel-item'));
+            const activeIndex = items.indexOf(item);
+            items.forEach((el, idx) => {
+                el.classList.toggle('active', el === item);
+                el.classList.toggle('is-left', idx < activeIndex);
+                el.classList.toggle('is-right', idx > activeIndex);
+            });
         }
 
         function updateCarouselBreakpointOffset() {
@@ -2424,6 +2843,9 @@
             // Initialize theme
             initTheme();
 
+            setActiveProject('aiva');
+            setActiveCarouselItem(document.querySelector('.carousel-item[data-project="aiva"]') || document.querySelector('.carousel-item'));
+
             // Preserve carousel padding ratio below 1800px (keep 1920 locked)
             initCarouselPaddingRatio();
             window.addEventListener('resize', applyCarouselPaddingRatio);
@@ -2433,6 +2855,141 @@
             window.addEventListener('resize', fitAboutTextToImageBelow800);
             updateCarouselBreakpointOffset();
             window.addEventListener('resize', updateCarouselBreakpointOffset);
+
+            let carouselDragMoved = false;
+            let lastCarouselItem = null;
+
+            function initCarouselDrag(container) {
+                if (!container) return;
+                const root = document.documentElement;
+                let isDown = false;
+                let startX = 0;
+                let startPan = 0;
+
+                container.addEventListener('pointerdown', function(e) {
+                    if (e.button !== 0) return;
+                    if (carouselEl && carouselEl.classList.contains('zoomed')) return;
+                    const downItem = e.target.closest('.carousel-item');
+                    if (downItem) {
+                        lastCarouselItem = downItem;
+                    }
+                    isDown = true;
+                    carouselDragMoved = false;
+                    startX = e.pageX;
+                    const panValue = getComputedStyle(root).getPropertyValue('--carousel-pan-x').trim();
+                    startPan = panValue ? parseFloat(panValue) : 0;
+                    container.classList.add('dragging');
+                    container.setPointerCapture(e.pointerId);
+                });
+
+                container.addEventListener('pointermove', function(e) {
+                    const hoverItem = e.target.closest('.carousel-item');
+                    if (hoverItem) {
+                        lastCarouselItem = hoverItem;
+                    }
+                    if (!isDown) return;
+                    const dx = e.pageX - startX;
+                    if (Math.abs(dx) > 6) {
+                        carouselDragMoved = true;
+                    }
+                    const nextPan = Math.max(-220, Math.min(220, startPan + dx));
+                    root.style.setProperty('--carousel-pan-x', `${Math.round(nextPan)}px`);
+                });
+
+                function endDrag(e) {
+                    if (!isDown) return;
+                    isDown = false;
+                    container.classList.remove('dragging');
+                    try {
+                        container.releasePointerCapture(e.pointerId);
+                    } catch (err) {
+                        // no-op
+                    }
+                    if (carouselDragMoved) {
+                        setTimeout(() => {
+                            carouselDragMoved = false;
+                        }, 0);
+                    }
+                }
+
+                container.addEventListener('pointerup', endDrag);
+                container.addEventListener('pointercancel', endDrag);
+                container.addEventListener('pointerleave', endDrag);
+            }
+
+            function initGlobalCarouselDrag(scope) {
+                if (!scope) return;
+                const root = document.documentElement;
+                let isDown = false;
+                let startX = 0;
+                let startPan = 0;
+                let panRaf = null;
+                let pendingPan = null;
+                let hasCapture = false;
+
+                scope.addEventListener('pointerdown', function(e) {
+                    if (e.button !== 0) return;
+                    if (carouselEl && carouselEl.classList.contains('zoomed')) return;
+                    if (e.target.closest('a, .back-button, .theme-toggle, .project-left, .project-right')) return;
+                    isDown = true;
+                    carouselDragMoved = false;
+                    startX = e.pageX;
+                    const panValue = getComputedStyle(root).getPropertyValue('--carousel-pan-x').trim();
+                    startPan = panValue ? parseFloat(panValue) : 0;
+                    hasCapture = false;
+                });
+
+                scope.addEventListener('pointermove', function(e) {
+                    const hoverItem = e.target.closest('.carousel-item');
+                    if (hoverItem) {
+                        lastCarouselItem = hoverItem;
+                    }
+                    if (!isDown) return;
+                    const dx = e.pageX - startX;
+                    if (Math.abs(dx) > 6) {
+                        carouselDragMoved = true;
+                        if (!hasCapture) {
+                            scope.setPointerCapture(e.pointerId);
+                            hasCapture = true;
+                        }
+                    }
+                    pendingPan = Math.max(-420, Math.min(420, startPan + dx));
+                    if (!panRaf) {
+                        panRaf = requestAnimationFrame(() => {
+                            root.style.setProperty('--carousel-pan-x', `${Math.round(pendingPan)}px`);
+                            panRaf = null;
+                        });
+                    }
+                });
+
+                function endDrag(e) {
+                    if (!isDown) return;
+                    isDown = false;
+                    try {
+                        if (hasCapture) {
+                            scope.releasePointerCapture(e.pointerId);
+                        }
+                    } catch (err) {
+                        // no-op
+                    }
+                    hasCapture = false;
+                    if (carouselDragMoved) {
+                        setTimeout(() => {
+                            carouselDragMoved = false;
+                        }, 0);
+                    }
+                }
+
+                scope.addEventListener('pointerup', endDrag);
+                scope.addEventListener('pointercancel', endDrag);
+                scope.addEventListener('pointerleave', endDrag);
+            }
+
+            const basePhoneHeight = 220;
+            const extraUp = -20;
+            const phoneHeightVar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--phone-image-height')) || basePhoneHeight;
+            const delta = Math.round(phoneHeightVar - basePhoneHeight);
+            document.documentElement.style.setProperty('--carousel-size-offset', `${-(delta + extraUp)}px`);
 
             // Function to zoom out
             function zoomOut() {
@@ -2453,19 +3010,73 @@
             // Manual scroll zoom control - smooth and controlled, only zoom in on scroll up
             let manualZoomLevel = 1.0;
             const minZoom = 1.0;
-            const maxZoom = 1.35;
+            let maxZoom = activeZoomScale;
             const zoomStep = 0.03; // Larger step for more control
-            const smoothTransition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            const zoomTargetLeftPx = 140;
+            const smoothTransition = 'transform 3.0s cubic-bezier(0.16, 1, 0.3, 1), top 3.0s cubic-bezier(0.16, 1, 0.3, 1), left 3.0s cubic-bezier(0.16, 1, 0.3, 1)';
+            let zoomTargetLeftPx = activeZoomLeftPx;
             
             const carouselContainer = document.getElementById('carousel-container');
             const carouselEl = document.querySelector('.timeline-carousel');
+            const homePage = document.getElementById('home-page');
+            const overlay = document.getElementById('project-overlay');
+
+            initCarouselDrag(carouselContainer);
+            initGlobalCarouselDrag(homePage);
+
+            if (homePage) {
+                homePage.addEventListener('wheel', function(e) {
+                    if (carouselEl && carouselEl.classList.contains('zoomed')) return;
+                    if (!homePage.classList.contains('active')) return;
+                    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+                    e.preventDefault();
+                    const root = document.documentElement;
+                    const panValue = getComputedStyle(root).getPropertyValue('--carousel-pan-x').trim();
+                    const startPan = panValue ? parseFloat(panValue) : 0;
+                    const nextPan = Math.max(-420, Math.min(420, startPan - e.deltaX));
+                    root.style.setProperty('--carousel-pan-x', `${Math.round(nextPan)}px`);
+                }, { passive: false });
+            }
+
+            const customCursor = document.createElement('div');
+            customCursor.className = 'custom-cursor';
+            document.body.appendChild(customCursor);
+
+            let cursorX = 0;
+            let cursorY = 0;
+            let cursorRaf = null;
+            function updateCursor() {
+                customCursor.style.left = `${cursorX}px`;
+                customCursor.style.top = `${cursorY}px`;
+                cursorRaf = null;
+            }
+            document.addEventListener('pointermove', (e) => {
+                cursorX = e.clientX;
+                cursorY = e.clientY;
+                if (!cursorRaf) {
+                    cursorRaf = requestAnimationFrame(updateCursor);
+                }
+            });
+
+            const hoverTargets = 'a, .back-button, .theme-toggle';
+            document.body.addEventListener('mouseover', (e) => {
+                if (e.target.closest(hoverTargets)) {
+                    document.body.classList.add('cursor-small');
+                }
+            });
+
+            document.body.addEventListener('mouseout', (e) => {
+                if (e.target.closest(hoverTargets)) {
+                    document.body.classList.remove('cursor-small');
+                }
+            });
             
             // Auto-complete zoom out when scrolling stops
             let scrollTimeout = null;
             let isZoomingOut = false;
             
             function applyZoom(level, overlay, homePage, carouselEl) {
+                maxZoom = activeZoomScale;
+                zoomTargetLeftPx = activeZoomLeftPx;
                 const scale = level;
                 const zoomFactor = (level - minZoom) / (maxZoom - minZoom);
                 const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
@@ -2486,16 +3097,15 @@
                         projectLeft.style.opacity = fade.toFixed(3);
                     }
 
-                    const overlay = document.getElementById('project-overlay');
-                    if (overlay) {
-                        overlay.style.opacity = fade.toFixed(3);
-                        overlay.style.visibility = fade > 0 ? 'visible' : 'hidden';
-                        overlay.style.pointerEvents = fade > 0 ? 'auto' : 'none';
+                    const overlayEl = document.getElementById('project-overlay');
+                    if (overlayEl) {
+                        overlayEl.style.opacity = fade.toFixed(3);
+                        overlayEl.style.visibility = fade > 0 ? 'visible' : 'hidden';
+                        overlayEl.style.pointerEvents = fade > 0 ? 'auto' : 'none';
                     }
                 }
                 
                 if (level <= minZoom) {
-                    // Reset to original position when fully zoomed out
                     carouselEl.style.position = '';
                     carouselEl.style.top = '';
                     carouselEl.style.left = '';
@@ -2516,30 +3126,16 @@
                         projectLeft.style.visibility = '';
                     }
                 } else {
-                    // Calculate position based directly on scale
-                    const scaleFactor = (scale - minZoom) / (maxZoom - minZoom);
-                    let leftValue;
-                    if (scaleFactor === 0) {
-                        leftValue = '50%';
-                    } else if (scaleFactor === 1) {
-                        leftValue = `calc(50% + ${zoomTargetLeftPx}px)`;
-                    } else {
-                        const offsetPercent = (zoomTargetLeftPx / window.innerWidth) * 100;
-                        const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
-                        leftValue = `${interpolatedLeft}%`;
-                    }
-                    
                     carouselEl.style.setProperty('position', 'fixed', 'important');
                     updateCarouselBreakpointOffset();
                     carouselEl.style.setProperty('top', 'calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px))', 'important');
-                    carouselEl.style.setProperty('left', leftValue, 'important');
+                    carouselEl.style.setProperty('left', `calc(50% + ${zoomTargetLeftPx}px)`, 'important');
                     carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
                     carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
                     carouselEl.style.setProperty('z-index', '101', 'important');
                     carouselEl.style.transition = smoothTransition;
                     carouselEl.dataset.manualZoom = level.toString();
                     
-                    // Show overlay and text only when fully zoomed
                     if (level >= maxZoom) {
                         overlay.classList.add('active');
                         carouselEl.classList.add('zoomed');
@@ -2570,319 +3166,54 @@
                 }
             }
             
-            if (carouselContainer && carouselEl) {
-                carouselContainer.addEventListener('wheel', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Check if we're in manual zoom mode
-                    const isManualZoom = carouselEl.dataset.manualZoom !== undefined && carouselEl.dataset.manualZoom !== '';
-                    
-                    // If we're fully zoomed via click (not manual), initialize manual zoom level
-                    if (carouselEl.classList.contains('zoomed') && !isManualZoom) {
-                        manualZoomLevel = maxZoom;
-                        carouselEl.dataset.manualZoom = manualZoomLevel.toString();
-                    }
-                    
-                    // Calculate zoom direction - scroll down zooms in, scroll up zooms out
-                    // Make scroll up zoom out fully in one scroll
-                    const scrollMultiplier = e.deltaY > 0 ? 1 : 20; // Scroll up zooms out fully in one scroll
-                    const delta = e.deltaY > 0 ? zoomStep : -zoomStep * scrollMultiplier;
-                    manualZoomLevel = Math.max(minZoom, Math.min(maxZoom, manualZoomLevel + delta));
-                    
-                    // No auto-complete - zoom out works exactly like zoom in (smooth manual control)
-                    // Clear any existing timeout
-                    if (scrollTimeout) {
-                        clearTimeout(scrollTimeout);
-                        scrollTimeout = null;
-                    }
-                    isZoomingOut = false;
-                    
-                    const overlay = document.getElementById('project-overlay');
-                    const homePage = document.getElementById('home-page');
-                    
-                    if (!overlay || !homePage) return;
+            if (carouselContainer && carouselEl && overlay) {
+                let swipeStartX = 0;
+                let swipeStartY = 0;
+                let isSwiping = false;
 
-                    
-                    // Apply zoom immediately during scroll - smooth continuous motion
-                    // Same logic as zoom in, just works in reverse
-                    const scale = manualZoomLevel;
-                    const zoomFactor = (manualZoomLevel - minZoom) / (maxZoom - minZoom);
-                    const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
-                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-                    if (isMobile) {
-                    const fade = clampedZoomFactor;
-                    const homeFade = clampedZoomFactor <= 0 ? 1 : 0;
-                        const nameEl = document.querySelector('.name-section');
-                        const linksEl = document.querySelector('.links-section');
-                        const toggleEl = document.querySelector('.theme-toggle');
-                        if (nameEl) nameEl.style.opacity = homeFade.toFixed(3);
-                        if (linksEl) linksEl.style.opacity = homeFade.toFixed(3);
-                        if (toggleEl) toggleEl.style.opacity = homeFade.toFixed(3);
+                overlay.addEventListener('pointerdown', function(e) {
+                    if (e.button !== 0) return;
+                    swipeStartX = e.clientX;
+                    swipeStartY = e.clientY;
+                    isSwiping = true;
+                });
 
-                        const projectLeft = document.querySelector('.project-left');
-                        if (projectLeft) {
-                            projectLeft.style.opacity = fade.toFixed(3);
-                        }
-                    }
-                    
-                    if (manualZoomLevel <= minZoom) {
-                        // Reset to original position when fully zoomed out
-                        carouselEl.style.position = '';
-                        carouselEl.style.top = '';
-                        carouselEl.style.left = '';
-                        carouselEl.style.transform = '';
-                        carouselEl.style.transformOrigin = '';
-                        carouselEl.style.transition = smoothTransition;
-                        carouselEl.dataset.manualZoom = '';
-                        carouselEl.classList.remove('zoomed');
-                        homePage.classList.remove('zoomed');
-                        overlay.classList.remove('active');
-                        overlay.style.opacity = '';
-                        overlay.style.visibility = '';
-                        overlay.style.pointerEvents = '';
-                        
-                        const projectLeft = document.querySelector('.project-left');
-                        if (projectLeft) {
-                            projectLeft.style.opacity = '';
-                            projectLeft.style.visibility = '';
-                        }
-                        
-                        // Cancel auto-complete since we're already at minZoom
-                        isZoomingOut = false;
-                        if (scrollTimeout) {
-                            clearTimeout(scrollTimeout);
-                            scrollTimeout = null;
-                        }
+                overlay.addEventListener('pointermove', function(e) {
+                    if (!isSwiping) return;
+                    const dx = e.clientX - swipeStartX;
+                    const dy = e.clientY - swipeStartY;
+                    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
+                    isSwiping = false;
+
+                    if (dx < 0) {
+                        setActiveProject('landing');
+                        setActiveCarouselItem(document.querySelector('.carousel-item[data-project=\"landing\"]'));
                     } else {
-                        // Remove zoomed class first if zoom level is below max to allow inline styles to work
-                        if (manualZoomLevel < maxZoom) {
-                            carouselEl.classList.remove('zoomed');
-                            homePage.classList.remove('zoomed');
-                        }
-                        
-                        // Always use inline styles for smooth transitions - never let CSS take over during manual zoom
-                        // Calculate position based directly on scale - ensures perfect synchronization
-                        // Scale goes from 1.0 to 1.25, normalize to 0-1 for position interpolation
-                        const scaleFactor = (scale - minZoom) / (maxZoom - minZoom); // 0 to 1 based on scale
-                        
-                        // Calculate left position: start at 50%, end at target offset
-                        // Use calc() to properly mix percentage and rem units
-                        let leftValue;
-                        if (scaleFactor === 0) {
-                            leftValue = '50%';
-                        } else if (scaleFactor === 1) {
-                            leftValue = `calc(50% + ${zoomTargetLeftPx}px)`;
-                        } else {
-                            // Interpolate using target offset in pixels
-                            const offsetPercent = (zoomTargetLeftPx / window.innerWidth) * 100;
-                            const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
-                            leftValue = `${interpolatedLeft}%`;
-                        }
-                        
-                        // Always apply transform and position together in one operation - perfectly synchronized
-                        // During active scrolling, use no transition for instant updates (smooth motion)
-                        // Transition will be applied when scrolling stops for auto-complete
-                        carouselEl.style.setProperty('position', 'fixed', 'important');
-                        updateCarouselBreakpointOffset();
-                        carouselEl.style.setProperty('top', 'calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px))', 'important');
-                        carouselEl.style.setProperty('left', leftValue, 'important');
-                        carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
-                        carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
-                        carouselEl.style.setProperty('z-index', '101', 'important');
-                        carouselEl.style.transition = smoothTransition; // Same transition as click zoom
-                        carouselEl.dataset.manualZoom = manualZoomLevel.toString();
-                        
-                        // Show overlay and text ONLY when fully zoomed (exactly at maxZoom)
-                        // Hide text immediately when zooming out (manualZoomLevel < maxZoom)
-                        if (manualZoomLevel >= maxZoom) {
-                            overlay.classList.add('active');
-                            carouselEl.classList.add('zoomed');
-                            homePage.classList.add('zoomed');
-                            overlay.style.opacity = '';
-                            overlay.style.visibility = '';
-                            overlay.style.pointerEvents = '';
-                            
-                            // Show text immediately when fully zoomed
-                            const projectLeft = document.querySelector('.project-left');
-                            if (projectLeft) {
-                                projectLeft.style.opacity = '1';
-                                projectLeft.style.visibility = 'visible';
-                            }
-                        } else {
-                            // Hide overlay and text when NOT fully zoomed (including during zoom out)
-                            overlay.style.opacity = '0';
-                            overlay.style.visibility = 'hidden';
-                            overlay.style.pointerEvents = 'none';
-                            overlay.classList.remove('active');
-                            carouselEl.classList.remove('zoomed');
-                            homePage.classList.remove('zoomed');
-                            
-                            // Hide project text when not fully zoomed - ensure it's hidden during zoom out
-                            const projectLeft = document.querySelector('.project-left');
-                            if (projectLeft) {
-                                projectLeft.style.opacity = '0';
-                                projectLeft.style.visibility = 'hidden';
-                            }
-                        }
+                        setActiveProject('aiva');
+                        setActiveCarouselItem(document.querySelector('.carousel-item[data-project=\"aiva\"]'));
+                    }
+                });
+
+                overlay.addEventListener('pointerup', function() {
+                    isSwiping = false;
+                });
+
+                overlay.addEventListener('pointercancel', function() {
+                    isSwiping = false;
+                });
+
+                overlay.addEventListener('wheel', function(e) {
+                    if (!overlay.classList.contains('active')) return;
+                    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+                    e.preventDefault();
+                    if (e.deltaX > 0) {
+                        setActiveProject('landing');
+                        setActiveCarouselItem(document.querySelector('.carousel-item[data-project=\"landing\"]'));
+                    } else {
+                        setActiveProject('aiva');
+                        setActiveCarouselItem(document.querySelector('.carousel-item[data-project=\"aiva\"]'));
                     }
                 }, { passive: false });
-
-                // Also handle scroll on the overlay when it's active (Aiva page)
-                const overlay = document.getElementById('project-overlay');
-                if (overlay) {
-                    overlay.addEventListener('wheel', function(e) {
-                        // Only handle if overlay is active
-                        if (!overlay.classList.contains('active')) {
-                            return;
-                        }
-                        
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Check if we're in manual zoom mode
-                        const isManualZoom = carouselEl.dataset.manualZoom !== undefined && carouselEl.dataset.manualZoom !== '';
-                        
-                        // If we're fully zoomed via click (not manual), initialize manual zoom level
-                        if (carouselEl.classList.contains('zoomed') && !isManualZoom) {
-                            manualZoomLevel = maxZoom;
-                            carouselEl.dataset.manualZoom = manualZoomLevel.toString();
-                        }
-                        
-                        // Calculate zoom direction - scroll down zooms in, scroll up zooms out
-                        // Make scroll up zoom out fully in one scroll
-                        const scrollMultiplier = e.deltaY > 0 ? 1 : 20; // Scroll up zooms out fully in one scroll
-                        const delta = e.deltaY > 0 ? zoomStep : -zoomStep * scrollMultiplier;
-                        manualZoomLevel = Math.max(minZoom, Math.min(maxZoom, manualZoomLevel + delta));
-                        
-                        // No auto-complete - zoom out works exactly like zoom in (smooth manual control)
-                        // Clear any existing timeout
-                        if (scrollTimeout) {
-                            clearTimeout(scrollTimeout);
-                            scrollTimeout = null;
-                        }
-                        isZoomingOut = false;
-                        
-                        const homePage = document.getElementById('home-page');
-                        if (!homePage) return;
-
-                        
-                        // Calculate interpolation factor (0 to 1)
-                        const zoomFactor = (manualZoomLevel - minZoom) / (maxZoom - minZoom);
-                        const clampedZoomFactor = Math.max(0, Math.min(1, zoomFactor));
-                        const scale = manualZoomLevel;
-                        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-                        if (isMobile) {
-                        const fade = clampedZoomFactor;
-                        const homeFade = clampedZoomFactor <= 0 ? 1 : 0;
-                            const nameEl = document.querySelector('.name-section');
-                            const linksEl = document.querySelector('.links-section');
-                            const toggleEl = document.querySelector('.theme-toggle');
-                            if (nameEl) nameEl.style.opacity = homeFade.toFixed(3);
-                            if (linksEl) linksEl.style.opacity = homeFade.toFixed(3);
-                            if (toggleEl) toggleEl.style.opacity = homeFade.toFixed(3);
-
-                            const projectLeft = document.querySelector('.project-left');
-                            if (projectLeft) {
-                                projectLeft.style.opacity = fade.toFixed(3);
-                            }
-                        }
-                        
-                        if (manualZoomLevel <= minZoom) {
-                            // Reset to original position when fully zoomed out
-                            carouselEl.style.position = '';
-                            carouselEl.style.top = '';
-                            carouselEl.style.left = '';
-                            carouselEl.style.transform = '';
-                            carouselEl.style.transformOrigin = '';
-                            carouselEl.style.transition = smoothTransition;
-                            carouselEl.dataset.manualZoom = '';
-                            carouselEl.classList.remove('zoomed');
-                            homePage.classList.remove('zoomed');
-                            overlay.classList.remove('active');
-                            overlay.style.opacity = '';
-                            overlay.style.visibility = '';
-                            overlay.style.pointerEvents = '';
-                            
-                            const projectLeft = document.querySelector('.project-left');
-                            if (projectLeft) {
-                                projectLeft.style.opacity = '';
-                                projectLeft.style.visibility = '';
-                            }
-                        } else {
-                            // Remove zoomed class first if zoom level is below max to allow inline styles to work
-                            if (manualZoomLevel < maxZoom) {
-                                carouselEl.classList.remove('zoomed');
-                                homePage.classList.remove('zoomed');
-                            }
-                            
-                            // Always use inline styles for smooth transitions - never let CSS take over during manual zoom
-                            // Calculate position based directly on scale - ensures perfect synchronization
-                            // Scale goes from 1.0 to 1.25, normalize to 0-1 for position interpolation
-                            const scaleFactor = (scale - minZoom) / (maxZoom - minZoom); // 0 to 1 based on scale
-                            
-                            // Calculate left position: start at 50%, end at target offset
-                            // Use calc() to properly mix percentage and rem units
-                            let leftValue;
-                            if (scaleFactor === 0) {
-                                leftValue = '50%';
-                            } else if (scaleFactor === 1) {
-                                leftValue = `calc(50% + ${zoomTargetLeftPx}px)`;
-                            } else {
-                                // Interpolate using target offset in pixels
-                                const offsetPercent = (zoomTargetLeftPx / window.innerWidth) * 100;
-                                const interpolatedLeft = 50 + (offsetPercent * scaleFactor);
-                                leftValue = `${interpolatedLeft}%`;
-                            }
-                            
-                        // Always apply transform and position together in one operation - perfectly synchronized
-                        // During active scrolling, use no transition for instant updates (smooth motion)
-                        // Transition will be applied when scrolling stops for auto-complete
-                        carouselEl.style.setProperty('position', 'fixed', 'important');
-                        updateCarouselBreakpointOffset();
-                        carouselEl.style.setProperty('top', 'calc(6.5rem + 7.5rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px))', 'important');
-                        carouselEl.style.setProperty('left', leftValue, 'important');
-                        carouselEl.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
-                        carouselEl.style.setProperty('transform-origin', 'center bottom', 'important');
-                        carouselEl.style.setProperty('z-index', '101', 'important');
-                        carouselEl.style.transition = smoothTransition; // Same transition as click zoom
-                        carouselEl.dataset.manualZoom = manualZoomLevel.toString();
-                            
-                            // Show overlay and text only when fully zoomed
-                            if (manualZoomLevel >= maxZoom) {
-                                overlay.classList.add('active');
-                                carouselEl.classList.add('zoomed');
-                                homePage.classList.add('zoomed');
-                                overlay.style.opacity = '';
-                                overlay.style.visibility = '';
-                                overlay.style.pointerEvents = '';
-                                
-                                // Show text immediately when fully zoomed
-                                const projectLeft = document.querySelector('.project-left');
-                                if (projectLeft) {
-                                    projectLeft.style.opacity = '1';
-                                    projectLeft.style.visibility = 'visible';
-                                }
-                            } else {
-                                // Hide overlay and text when not fully zoomed
-                                overlay.style.opacity = '0';
-                                overlay.style.visibility = 'hidden';
-                                overlay.style.pointerEvents = 'none';
-                                overlay.classList.remove('active');
-                                carouselEl.classList.remove('zoomed');
-                                homePage.classList.remove('zoomed');
-                                
-                                // Hide project text when not fully zoomed
-                                const projectLeft = document.querySelector('.project-left');
-                                if (projectLeft) {
-                                    projectLeft.style.opacity = '0';
-                                    projectLeft.style.visibility = 'hidden';
-                                }
-                            }
-                        }
-                    }, { passive: false });
-
-                }
             }
             
             // Handle clicks on navigation links
@@ -2909,26 +3240,42 @@
                     return false;
                 }
                 
-                // Handle click outside image/text on overlay (zoom out)
-                // Exclude theme toggle, back button, and zoomed carousel
-                const zoomedCarousel = e.target.closest('.timeline-carousel.zoomed');
-                if (isOverlayActive && !projectLeft && !carouselImage && !carouselContainer && !themeToggle && !projectBackButton && !zoomedCarousel) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    zoomOut();
-                    return false;
+                // Handle click anywhere on overlay (zoom out), except links/toggles/back button
+                if (isOverlayActive) {
+                    const isLink = e.target.closest('a');
+                    const zoomedCarousel = e.target.closest('.timeline-carousel.zoomed');
+                    if (!isLink && !themeToggle && !projectBackButton) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        zoomOut();
+                        return false;
+                    }
                 }
                 
                 // Handle carousel click (zoom in)
                 if (carouselContainer || carouselImage) {
+                    if (carouselDragMoved) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }
                     e.preventDefault();
                     e.stopPropagation();
+                    const clickedItem = e.target.closest('.carousel-item') || lastCarouselItem;
+                    if (clickedItem) {
+                        setActiveCarouselItem(clickedItem);
+                        if (clickedItem.dataset && clickedItem.dataset.project) {
+                            setActiveProject(clickedItem.dataset.project);
+                        }
+                    }
                     const carouselEl = document.querySelector('.timeline-carousel');
                     const homePage = document.getElementById('home-page');
                     
                     if (overlay && carouselEl && homePage) {
                         // Reset manual zoom
-                        manualZoomLevel = 0;
+                        manualZoomLevel = minZoom;
+                        maxZoom = activeZoomScale;
+                        zoomTargetLeftPx = activeZoomLeftPx;
                         carouselEl.dataset.manualZoom = '0';
                         overlay.classList.add('active');
                         carouselEl.classList.add('zoomed');
@@ -2940,7 +3287,7 @@
                 }
                 
                 // Handle regular navigation links
-                if (link) {
+                if (link && link.getAttribute('data-page')) {
                     console.log('Link clicked:', link);
                     e.preventDefault();
                     e.stopPropagation();
