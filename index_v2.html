@@ -1,0 +1,3171 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio v2</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="MeMoji-Favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="MeMoji-Favicon.png">
+    <link rel="apple-touch-icon" href="MeMoji-Favicon.png">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-secondary: #888888;
+            --text-secondary-hover: #000000;
+            --page-pad-x: clamp(2rem, 6vw, 5rem);
+            --page-pad-y: clamp(2rem, 4vw, 4rem);
+            --gap-xl: clamp(2rem, 4vw, 4rem);
+            --gap-lg: clamp(1.5rem, 3vw, 3rem);
+            --gap-md: clamp(1rem, 2vw, 2rem);
+            --home-image-gap: clamp(1rem, 3vw, 2.5rem);
+            --home-image-max: clamp(240px, 34vw, 520px);
+            --home-image-min: clamp(180px, 24vw, 280px);
+            --project-image-max: clamp(360px, 38vw, 640px);
+            --project-image-min: clamp(260px, 28vw, 420px);
+            --zoom-exit-duration: 1.2s;
+            --zoom-scale-laptop: 1.28;
+            --zoom-scale-phone: 1.65;
+            --zoom-text-width-factor: 0.4;
+            --zoom-text-min: 300;
+            --zoom-text-max: 500;
+            --zoom-text-gap: 32;
+            --zoom-target-x-offset: 110;
+            --zoom-target-x-phone-shift: 80;
+            --zoom-target-y-laptop: 80;
+            --zoom-target-y-phone: 90;
+            --aiva-zoom-offset: 90px;
+            --top-pad-y: clamp(5rem, 10vw, 8rem);
+            --top-pad-x-left: clamp(11.25rem, 21vw, 29rem);
+            --top-pad-x-right: clamp(13.25rem, 23vw, 31rem);
+            --top-right-pad-left: clamp(4rem, 8vw, 8rem);
+            --top-right-pad-top: clamp(0.2rem, 0.8vw, 0.9rem);
+            --carousel-top: 18rem;
+            --home-text-shift: clamp(1.3rem, 3.4vw, 5.1rem);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --text-secondary: #888888;
+            --text-secondary-hover: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background-color 0.45s ease, color 0.45s ease;
+        }
+
+        img {
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        /* Custom cursor */
+        html, body, * {
+            cursor: none !important;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(160, 160, 160, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            mix-blend-mode: normal;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .custom-cursor {
+                display: none;
+            }
+        }
+
+        body.cursor-small .custom-cursor {
+            width: 20px;
+            height: 20px;
+        }
+
+        .page {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Project overlay (copied layout from original) */
+        .project-detail-overlay {
+            position: fixed;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 5;
+            background-color: transparent;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .project-detail-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .project-detail-overlay .project-content-container {
+            opacity: 0;
+            filter: blur(10px);
+            transition: opacity var(--text-reveal-duration) ease var(--text-reveal-delay),
+                        filter var(--text-reveal-duration) ease var(--text-reveal-delay),
+                        transform var(--text-reveal-duration) ease var(--text-reveal-delay);
+            z-index: 40;
+            pointer-events: auto;
+        }
+
+        .project-detail-overlay.active .project-content-container {
+            opacity: 1;
+            filter: blur(0px);
+        }
+
+        .project-detail-overlay .corner-back {
+            position: fixed;
+            top: 3rem;
+            left: 4rem;
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: none;
+            opacity: 0;
+            filter: blur(10px);
+            pointer-events: none;
+            z-index: 45;
+            transition: opacity var(--text-reveal-duration) ease var(--text-reveal-delay),
+                        filter var(--text-reveal-duration) ease var(--text-reveal-delay);
+        }
+
+        .project-detail-overlay.active .corner-back {
+            opacity: 1;
+            filter: blur(0px);
+            pointer-events: auto;
+        }
+
+        .project-detail-overlay:not(.active) .project-content-container {
+            transition: opacity var(--zoom-duration) ease,
+                        filter var(--zoom-duration) ease,
+                        transform var(--zoom-duration) ease;
+        }
+
+        .project-content-container {
+            position: fixed;
+            top: 50%;
+            left: var(--zoom-text-left, 50%);
+            transform: translateX(0) translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(1rem, 2.5vw, 2.5rem);
+            width: min(1300px, 86vw);
+        }
+
+        .project-left {
+            flex: 0 0 40%;
+            max-width: clamp(300px, 31.25vw, 500px);
+            min-width: 0;
+            padding-left: clamp(0.25rem, 1vw, 1.5rem);
+        }
+
+        .project-title {
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: clamp(0.3rem, 0.5vw, 0.5rem);
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .project-role,
+        .project-design,
+        .project-year {
+            font-size: clamp(0.75rem, 0.95vw, 0.95rem);
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem);
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
+        .project-company {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: 0;
+            display: block;
+        }
+
+        .project-year {
+            font-size: clamp(0.75rem, 0.95vw, 0.95rem);
+            margin-bottom: clamp(1.5rem, 2vw, 2.5rem);
+        }
+
+        .project-link-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+            color: var(--text-color);
+            text-decoration: none;
+            margin-bottom: clamp(0.5rem, 1vw, 1rem);
+            margin-top: clamp(0.5rem, 1vw, 1rem);
+            line-height: 1;
+        }
+
+        .project-contributors {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-top: clamp(1.5rem, 2vw, 2.5rem);
+            color: var(--text-secondary);
+        }
+
+        .project-contributor {
+            font-size: clamp(0.7rem, 0.875vw, 0.875rem);
+        }
+
+        .project-right {
+            flex: 0 1 60%;
+            max-width: clamp(1500px, 110vw, 2400px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-image-container {
+            width: 100%;
+            max-width: clamp(1500px, 110vw, 2400px);
+        }
+
+        .project-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* When zoomed, use the carousel image only (hide duplicate overlay image) */
+        .home-page.zoomed .project-right {
+            display: none;
+        }
+
+        .project-detail-overlay .project-right {
+            display: none;
+        }
+
+        /* Match original web view text sizing/spacing */
+        .project-detail-overlay .project-content-container .project-title,
+        .project-detail-overlay .project-content-container .project-role,
+        .project-detail-overlay .project-content-container .project-design,
+        .project-detail-overlay .project-content-container .project-company,
+        .project-detail-overlay .project-content-container .project-year,
+        .project-detail-overlay .project-content-container .project-contributor {
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+            line-height: 0.56;
+        }
+
+        .project-detail-overlay .project-content-container .project-contributor {
+            line-height: 1.2;
+        }
+
+        .project-detail-overlay .project-content-container .project-title {
+            margin-bottom: 0;
+        }
+
+        .project-detail-overlay .project-content-container .project-role {
+            margin-bottom: 0;
+        }
+
+        .project-detail-overlay .project-content-container .project-design {
+            margin-bottom: 0;
+        }
+
+        .project-detail-overlay .project-content-container .project-company {
+            margin-bottom: 0;
+        }
+
+        .project-detail-overlay .project-content-container .project-year {
+            margin-bottom: clamp(0.2rem, 0.4vw, 0.4rem);
+        }
+
+        .project-detail-overlay .project-content-container .project-contributors {
+            margin-top: clamp(1.5rem, 2vw, 2.5rem);
+        }
+
+        .project-detail-overlay .project-content-container .project-link-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+            margin-top: clamp(0.8rem, 1.6vw, 1.8rem);
+            margin-bottom: 0;
+        }
+
+        .top-controls {
+            position: fixed;
+            top: 3rem;
+            left: 4rem;
+            right: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .back-button {
+            font-size: 1.6rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, color 0.2s ease;
+        }
+
+        .back-button:hover {
+            color: var(--text-secondary-hover);
+        }
+
+        .theme-toggle {
+            pointer-events: auto;
+            position: relative;
+            width: 1.75rem;
+            height: 1.75rem;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            cursor: none !important;
+            display: grid;
+            place-items: center;
+        }
+
+        .theme-toggle:hover {
+            color: var(--text-secondary-hover);
+        }
+
+        .theme-toggle .sun-icon,
+        .theme-toggle .moon-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: inline-block;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 1.4rem;
+            line-height: 1;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            width: 1.4rem;
+            height: 1.4rem;
+            display: grid;
+            place-items: center;
+        }
+
+        .theme-toggle .sun-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            position: relative;
+        }
+
+        .theme-toggle .moon-icon {
+            opacity: 0;
+            transform: rotate(-90deg) scale(0);
+        }
+
+        [data-theme="dark"] .theme-toggle .sun-icon {
+            opacity: 0;
+            transform: rotate(90deg) scale(0);
+        }
+
+        [data-theme="dark"] .theme-toggle .moon-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        /* CSS sun symbol (match original) */
+        .theme-toggle .sun-icon::before {
+            content: "";
+            position: absolute;
+            inset: 28% 28%;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .theme-toggle .sun-icon::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow:
+                0 -9px 0 0 currentColor,
+                0 9px 0 0 currentColor,
+                -9px 0 0 0 currentColor,
+                9px 0 0 0 currentColor,
+                6px 6px 0 0 currentColor,
+                -6px 6px 0 0 currentColor,
+                6px -6px 0 0 currentColor,
+                -6px -6px 0 0 currentColor;
+            opacity: 0.9;
+        }
+
+        .theme-toggle .moon-icon {
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .top-controls.show-back .back-button {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .top-controls.show-back {
+            pointer-events: auto;
+        }
+
+        .top-controls.show-back .back-button {
+            position: fixed;
+            top: 3rem;
+            left: 4rem;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding-top: var(--top-pad-y);
+            padding-left: var(--top-pad-x-left);
+            padding-right: var(--top-pad-x-right);
+            column-gap: clamp(1rem, 6vw, 6rem);
+            z-index: 2;
+            pointer-events: auto;
+        }
+
+        .top-left,
+        .top-right {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.2rem, 0.6vw, 0.5rem);
+            pointer-events: auto;
+        }
+
+        .top-right {
+            align-items: flex-start;
+            text-align: left;
+            padding-left: var(--top-right-pad-left);
+            padding-top: var(--top-right-pad-top);
+            transform: translateX(calc(-1 * var(--home-text-shift)));
+        }
+
+        .top-left {
+            transform: translateX(var(--home-text-shift));
+        }
+
+        .name-section {
+            pointer-events: auto;
+        }
+
+        .name-section .name,
+        .name-section .year {
+            margin: 0;
+            font-weight: 400;
+            font-size: clamp(1.35rem, 2.1vw, 2.35rem);
+            line-height: 1.1;
+        }
+
+        .links-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-align: left;
+            pointer-events: auto;
+        }
+
+        .links-section .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: clamp(0.95rem, 1.2vw, 1.25rem);
+            transition: color 0.2s ease;
+        }
+
+        .links-section .nav-link:hover {
+            color: var(--text-secondary-hover);
+        }
+
+        .timeline-carousel {
+            position: fixed;
+            top: var(--carousel-top);
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1;
+            overflow: visible;
+            pointer-events: auto;
+            padding-bottom: clamp(2rem, 6vh, 6rem);
+            transition: transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: center bottom;
+        }
+
+        @media (max-width: 1600px) {
+            :root {
+                --top-pad-y: clamp(4.2rem, 9vw, 7rem);
+                --top-pad-x-left: clamp(8.5rem, 15.5vw, 15.5rem);
+                --top-pad-x-right: clamp(9.5rem, 16.5vw, 16.5rem);
+                --top-right-pad-left: clamp(3rem, 6vw, 6rem);
+                --top-right-pad-top: clamp(0.15rem, 0.7vw, 0.8rem);
+                --carousel-top: 16rem;
+                --home-text-shift: clamp(2.6rem, 5.6vw, 6.9rem);
+                --aiva-zoom-offset: 120px;
+            }
+        }
+
+        @media (min-width: 1800px) {
+            :root {
+                --zoom-scale-laptop: 1.2;
+                --zoom-scale-phone: 1.52;
+                --aiva-zoom-offset: 140px;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            :root {
+                --zoom-scale-laptop: 1.15;
+                --zoom-scale-phone: 1.45;
+                --zoom-text-width-factor: 0.35;
+                --zoom-text-max: 440;
+                --zoom-text-gap: 26;
+                --zoom-target-x-offset: 90;
+                --zoom-target-x-phone-shift: 60;
+                --zoom-target-y-laptop: 60;
+                --zoom-target-y-phone: 70;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            :root {
+                --zoom-scale-laptop: 1.05;
+                --zoom-scale-phone: 1.32;
+                --zoom-text-width-factor: 0.32;
+                --zoom-text-max: 380;
+                --zoom-text-gap: 22;
+                --zoom-target-x-offset: 70;
+                --zoom-target-x-phone-shift: 45;
+                --zoom-target-y-laptop: 45;
+                --zoom-target-y-phone: 55;
+            }
+        }
+
+        :root {
+            --zoom-duration: 0.8s;
+            --text-reveal-duration: 0.25s;
+            --text-reveal-delay: calc(var(--zoom-duration) * 0.2);
+        }
+
+        .carousel-container {
+            display: flex;
+            align-items: flex-end;
+            gap: clamp(2rem, 6vw, 6rem);
+            padding-left: clamp(2rem, 6vw, 6rem);
+            padding-right: clamp(2rem, 6vw, 6rem);
+            width: 100%;
+            justify-content: center;
+            overflow: visible;
+            cursor: grab;
+            touch-action: pan-x;
+            pointer-events: auto;
+            user-select: none;
+            max-width: 100%;
+        }
+
+        .carousel-container.dragging {
+            cursor: grabbing;
+        }
+
+        /* Mobile overrides copied from previous build */
+        @media (max-width: 768px) {
+                    .custom-cursor {
+                        display: none;
+                    }
+                }
+
+        @media (max-width: 768px) {
+                    .timeline-carousel {
+                        width: max-content;
+                        max-width: none;
+                        left: 30px !important;
+                        margin-left: 0 !important;
+                        transform: translateX(0) translateY(-90px) !important;
+                        top: calc(6.5rem + 6.0rem + var(--carousel-offset, 0px) + var(--carousel-bp-offset, 0px) + var(--carousel-size-offset, 0px)) !important;
+                    }
+
+                    .carousel-item {
+                        display: block;
+                    }
+
+                    .carousel-item.active {
+                        display: block;
+                        transform: translateY(0) scale(1);
+                        transform-origin: center bottom;
+                    }
+
+                    .timeline-carousel.zoomed .carousel-item {
+                        display: block;
+                    }
+
+                    .carousel-container {
+                        display: flex;
+                        align-items: flex-end;
+                        gap: 1.25rem;
+                        overflow: visible;
+                        padding-left: 0;
+                    }
+
+                    .laptop-stack {
+                        height: 180px;
+                    }
+
+                    .phone-stack {
+                        height: 140px;
+                        width: auto;
+                        transform: translateX(0);
+                    }
+
+                    .image-stack {
+                        position: relative;
+                        display: inline-block;
+                    }
+
+                    .image-stack .carousel-image {
+                        width: auto;
+                        height: 100%;
+                    }
+
+                    .image-stack .carousel-image.dark-image {
+                        position: absolute;
+                        inset: 0;
+                        width: 100%;
+                        height: 100%;
+                    }
+
+                    .timeline-carousel.zoomed .carousel-item.active {
+                        transform: translateX(0) translateY(-80px) scale(var(--active-zoom-scale));
+                        transform-origin: center bottom;
+                        transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+
+                    .timeline-carousel.zoomed .carousel-item.is-left {
+                        transform: translateX(-120vw) scale(1);
+                        transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+
+                    .timeline-carousel.zoomed .carousel-item.is-right {
+                        transform: translateX(120vw) scale(1);
+                        transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+
+                    .project-detail-overlay .project-left {
+                        opacity: 0;
+                        transition: opacity 0.35s ease;
+                        transition-delay: 0s;
+                    }
+
+                    .project-detail-overlay.active .project-left {
+                        opacity: 1;
+                        transition-delay: 2.2s;
+                    }
+                }
+
+        @media (max-width: 768px) {
+                    .home-page {
+                        z-index: 1;
+                    }
+
+                    .timeline-carousel {
+                        z-index: 3;
+                    }
+
+                    .home-page .name-section,
+                    .home-page .links-section {
+                        z-index: 1;
+                    }
+                }
+
+        @media (max-width: 480px) {
+                    .timeline-carousel {
+                        width: 150px;
+                        max-width: 150px;
+                    }
+                }
+
+        @media (max-width: 480px) {
+                    .project-image-container {
+                        max-width: 100% !important;
+                    }
+                }
+
+        @media (max-width: 480px) {
+                    .project-page-container {
+                        flex-direction: column;
+                        padding: 4rem 5.5rem;
+                        gap: 3rem;
+                    }
+
+                    .project-left {
+                        flex: 1;
+                        max-width: 100%;
+                    }
+
+                    .project-right {
+                        width: 100%;
+                        max-width: 100%;
+                    }
+
+                    .project-image-container {
+                        max-width: 100% !important;
+                    }
+                }
+
+        @media (max-width: 480px) {
+                    .project-page-container {
+                        padding: 2.5rem 3.5rem;
+                    }
+                }
+
+        @media (max-width: 480px) {
+                    .top-controls {
+                        top: clamp(2.2rem, 4.5vw, 3.2rem);
+                        left: clamp(2rem, 4.5vw, 2.5rem);
+                        right: clamp(2rem, 4.5vw, 2.5rem);
+                    }
+
+                    .theme-toggle {
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                        /* Align vertically with chevron - match back button top position exactly */
+                        align-items: flex-start !important;
+                    }
+
+                    .theme-toggle:focus {
+                        outline: none !important;
+                    }
+
+                    .theme-toggle:active {
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .theme-toggle .sun-icon,
+                    .theme-toggle .moon-icon {
+                        font-size: 1.4rem !important;
+                        width: 1.4rem !important;
+                        height: 1.4rem !important;
+                        text-align: center !important;
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                        /* Ensure symbols render as text, not emoji */
+                        font-variant-emoji: text;
+                        -webkit-font-feature-settings: "liga" off;
+                    }
+
+                    /* Mobile: Back button bigger, more horizontal padding */
+                    .back-button {
+                        font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .back-button:focus {
+                        outline: none !important;
+                    }
+
+                    .back-button:active {
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .project-back-button {
+                        font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .project-back-button:focus {
+                        outline: none !important;
+                    }
+
+                    .project-back-button:active {
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    /* Mobile: Name and year bigger, moved up higher, same horizontal padding as links */
+                    .name-section {
+                        position: fixed;
+                        top: auto;
+                        bottom: 60%;
+                        left: 0;
+                        padding: clamp(2rem, 4vw, 4rem) clamp(3rem, 8vw, 5.5rem);
+                        padding-bottom: 0;
+                        padding-left: clamp(3rem, 8vw, 5.5rem) !important;
+                        padding-right: clamp(3rem, 8vw, 5.5rem) !important;
+                        transform: translateY(0);
+                    }
+
+                    .name {
+                        font-size: clamp(2rem, 5vw, 2.5rem) !important;
+                        margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem) !important;
+                    }
+
+                    .year {
+                        font-size: clamp(2rem, 5vw, 2.5rem) !important;
+                        margin-bottom: clamp(0.1rem, 0.15vw, 0.15rem) !important;
+                    }
+
+                    /* Mobile: Links right underneath year text, almost zero spacing, same horizontal padding */
+                    .links-section {
+                        position: fixed;
+                        top: auto;
+                        bottom: 60%;
+                        left: 0;
+                        padding: 0 clamp(3rem, 8vw, 5.5rem);
+                        padding-top: 0;
+                        transform: translateY(calc(100% - 2.5rem));
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: clamp(0.05rem, 0.1vw, 0.1rem);
+                    }
+
+                    .nav-link {
+                        font-size: clamp(1.25rem, 3vw, 1.5rem) !important;
+                    }
+
+                    /* Mobile: Carousel image on bottom half */
+                    .timeline-carousel {
+                        position: fixed;
+                        top: auto;
+                        bottom: 0;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: clamp(150px, 35vw, 220px);
+                        max-width: clamp(150px, 35vw, 220px);
+                        padding-bottom: clamp(2rem, 5vh, 4rem);
+                    }
+
+                    /* Mobile: About page - simple layout matching reference, same horizontal padding as home page */
+                    .about-page-container {
+                        flex-direction: column;
+                        padding: 0;
+                        gap: 0;
+                        align-items: stretch;
+                    }
+
+                    /* Mobile: reset About layout to simple stacked flow */
+                    .about-flex-group {
+                        flex-direction: column !important;
+                        height: auto !important;
+                        gap: clamp(1.5rem, 3vw, 2rem) !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        margin: 0 !important;
+                        align-items: flex-start !important;
+                    }
+
+                    .about-left {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        min-width: 0 !important;
+                        height: auto !important;
+                        overflow: visible !important;
+                    }
+
+                    .about-text-wrap {
+                        transform: none !important;
+                        height: auto !important;
+                    }
+
+                    .about-links {
+                        margin-top: 0 !important;
+                    }
+
+                    /* Mobile: Completely reset about-right for mobile */
+                    .about-right {
+                        order: -1 !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        height: clamp(220px, 50vw, 320px) !important;
+                        min-height: clamp(220px, 50vw, 320px) !important;
+                        max-height: none !important;
+                        padding-top: clamp(1.5rem, 3vw, 3rem) !important;
+                        padding-left: clamp(1rem, 3vw, 2rem) !important;
+                        padding-right: clamp(1rem, 3vw, 2rem) !important;
+                        padding-bottom: 0 !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        background: none !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        overflow: visible !important;
+                        position: relative !important;
+                        flex: none !important;
+                        z-index: 2 !important;
+                    }
+
+                    .about-left {
+                        z-index: 1 !important;
+                    }
+
+                    /* Force about-right to be visible */
+                    #about.active .about-right,
+                    #about .about-right,
+                    #about.active .about-page-container .about-right,
+                    #about .about-page-container .about-right,
+                    .about-page-container .about-right {
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        display: flex !important;
+                        height: auto !important;
+                        min-height: 0 !important;
+                        max-height: none !important;
+                    }
+
+                    /* Mobile: Completely reset about-image for mobile */
+                    .about-image {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        height: 100% !important;
+                        min-width: 0 !important;
+                        min-height: 0 !important;
+                        max-height: none !important;
+                        object-fit: contain !important;
+                        object-position: center !important;
+                        display: block !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        background: none !important;
+                        background-color: transparent !important;
+                        filter: none !important;
+                        -webkit-filter: none !important;
+                        mix-blend-mode: normal !important;
+                        position: relative !important;
+                        z-index: 10 !important;
+                    }
+
+                    /* Force about-image to be visible with all possible selectors */
+                    #about.active .about-image,
+                    #about .about-image,
+                    #about.active .about-right .about-image,
+                    #about .about-right .about-image,
+                    .about-right .about-image,
+                    .about-right img,
+                    img.about-image,
+                    #about.active .about-page-container .about-image,
+                    #about .about-page-container .about-image,
+                    .about-page-container .about-image,
+                    .about-page-container img {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        height: auto !important;
+                        min-width: 0 !important;
+                        min-height: 0 !important;
+                        max-height: none !important;
+                        display: block !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        background: none !important;
+                        background-color: transparent !important;
+                        filter: none !important;
+                        -webkit-filter: none !important;
+                        mix-blend-mode: normal !important;
+                    }
+
+                    .about-left {
+                        width: 100%;
+                        padding-left: clamp(1rem, 3vw, 2rem) !important;
+                        padding-right: clamp(1rem, 3vw, 2rem) !important;
+                        padding-top: clamp(1.5rem, 3.5vw, 2.5rem) !important;
+                        padding-bottom: clamp(4rem, 8vw, 6.5rem);
+                    }
+
+                    /* Mobile: Bigger bio and links text */
+                    .about-paragraph {
+                        font-size: clamp(1rem, 2.5vw, 1.2rem) !important;
+                        line-height: 1.5 !important;
+                    }
+
+                    .email-link,
+                    .about-link {
+                        font-size: clamp(1rem, 2.5vw, 1.2rem) !important;
+                    }
+
+                    .project-page-container {
+                        padding: clamp(2rem, 4vw, 4rem) clamp(3rem, 8vw, 5.5rem);
+                        gap: clamp(2rem, 4vw, 3rem);
+                    }
+
+                    .project-left {
+                        flex: 1;
+                        max-width: 100%;
+                    }
+
+                    .project-right {
+                        width: 100%;
+                        max-width: 100%;
+                    }
+
+                    .project-image-container {
+                        max-width: 100% !important;
+                        min-width: 0;
+                    }
+
+                    /* Mobile: Project overlay - image larger and lower (text stays put) */
+                    .timeline-carousel.zoomed {
+                        top: 102vh !important;
+                        left: 50% !important;
+                        transform-origin: center bottom !important;
+                        transform: translateX(-50%) translateY(-50%) scale(4.0) !important;
+                    }
+
+                    .project-landing .timeline-carousel.zoomed {
+                        left: calc(88% + 40px) !important;
+                        transform: translateX(-50%) translateY(-50%) scale(4.0) !important;
+                    }
+
+                    .project-aiva .timeline-carousel.zoomed {
+                        left: calc(10% - 75px) !important;
+                        top: calc(102vh + 70px) !important;
+                        transform: translateX(-50%) translateY(-50%) scale(3.9) !important;
+                    }
+
+                    .timeline-carousel.zoomed .carousel-image {
+                        image-rendering: -webkit-optimize-contrast;
+                        image-rendering: auto;
+                        filter: none;
+                    }
+
+                    /* Mobile: Project content container - positioned below zoomed image */
+                    .project-detail-overlay .project-content-container {
+                        position: fixed !important;
+                        top: calc(26vh + 280px) !important;
+                        left: 50% !important;
+                        transform: translateX(-50%) translateX(55px) !important;
+                        width: 100% !important;
+                        max-width: 520px !important;
+                        display: flex !important;
+                        justify-content: space-between !important;
+                        align-items: flex-start !important;
+                        padding: 0 clamp(2.5rem, 6vw, 4.5rem) !important;
+                        height: auto !important;
+                    }
+
+                    /* Mobile: Project left - title and year only */
+                    .project-detail-overlay .project-left {
+                        position: relative !important;
+                        left: auto !important;
+                        top: auto !important;
+                        transform: none !important;
+                        flex: 0 0 auto !important;
+                        max-width: 320px !important;
+                        display: grid !important;
+                        grid-template-columns: 1fr 1fr !important;
+                        column-gap: clamp(2rem, 5vw, 3rem) !important;
+                        align-items: start !important;
+                        margin-top: 12px !important;
+                    }
+
+                    .project-detail-overlay .project-left > * {
+                        grid-column: 1;
+                        margin-top: 0 !important;
+                    }
+
+                    /* Mobile: Show role and design on mobile */
+                    .project-detail-overlay .project-role,
+                    .project-detail-overlay .project-design {
+                        display: block !important;
+                        font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+                    }
+
+                    .project-detail-overlay .project-company {
+                        display: block !important;
+                        font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+                    }
+
+                    /* Mobile: Project right - contributors only (no image) */
+                    .project-detail-overlay .project-right {
+                        display: flex !important;
+                        flex: 0 0 auto !important;
+                        max-width: 220px !important;
+                        align-items: flex-start !important;
+                        justify-content: flex-end !important;
+                    }
+
+                    .project-detail-overlay .project-right .project-image-container {
+                        display: none !important;
+                    }
+
+                    /* Mobile: Contributors on the right column */
+                    .project-detail-overlay .project-contributors {
+                        grid-column: 2 !important;
+                        grid-row: 1 / span 6 !important;
+                        justify-self: start !important;
+                        text-align: left !important;
+                        margin-top: -70px !important;
+                        transform: translateY(-28px) !important;
+                        padding-top: 0 !important;
+                        align-self: start !important;
+                        margin-bottom: 0 !important;
+                    }
+
+                    .project-detail-overlay .project-contributor {
+                        font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+                    }
+
+                    .project-detail-overlay .project-title,
+                    .project-detail-overlay .project-year {
+                        font-size: clamp(1.2rem, 3.2vw, 1.5rem) !important;
+                    }
+
+                    /* Mobile: Smooth opacity fades to avoid blink on zoom out */
+                    .name-section,
+                    .links-section,
+                    .theme-toggle,
+                    .project-detail-overlay .project-left {
+                        transition: opacity 0.35s ease !important;
+                    }
+
+                }
+
+        @media (max-width: 480px) {
+                    .theme-toggle {
+                        top: clamp(1.8rem, 3.5vw, 2.3rem) !important;
+                        right: clamp(1.5rem, 3.5vw, 2rem) !important;
+                        left: auto !important;
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                        /* Align vertically with chevron - match back button top position exactly */
+                        align-items: flex-start !important;
+                    }
+
+                    /* Mobile: Theme toggle aligned vertically with back button */
+                    .back-button {
+                        top: clamp(1rem, 2vw, 1.5rem) !important;
+                    }
+
+                    .project-back-button {
+                        top: clamp(1rem, 2vw, 1.5rem) !important;
+                    }
+
+                    .theme-toggle:focus {
+                        outline: none !important;
+                    }
+
+                    .theme-toggle:active {
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .theme-toggle .sun-icon,
+                    .theme-toggle .moon-icon {
+                        font-size: 1.4rem !important;
+                        width: 1.4rem !important;
+                        height: 1.4rem !important;
+                        text-align: center !important;
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                        /* Ensure symbols render as text, not emoji */
+                        font-variant-emoji: text;
+                        -webkit-font-feature-settings: "liga" off;
+                    }
+
+                    /* Mobile: Back button bigger, more horizontal padding */
+                    .back-button {
+                        top: clamp(1rem, 2vw, 1.5rem);
+                        left: clamp(1.5rem, 3.5vw, 2rem) !important;
+                        font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .back-button:focus {
+                        outline: none !important;
+                    }
+
+                    .back-button:active {
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .project-back-button {
+                        font-size: clamp(2rem, 4vw, 2.5rem) !important;
+                        left: clamp(1.5rem, 3.5vw, 2rem) !important;
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .project-back-button:focus {
+                        outline: none !important;
+                    }
+
+                    .project-back-button:active {
+                        outline: none !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                    }
+
+                    .name-section {
+                        padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 5vw, 3.5rem);
+                    }
+
+                    .links-section {
+                        padding: clamp(1.5rem, 3vw, 2.5rem) clamp(3rem, 7vw, 5.5rem) clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 5vw, 3.5rem);
+                    }
+
+                    .about-page-container {
+                        padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 5vw, 3.5rem);
+                    }
+
+                    .project-page-container {
+                        padding: clamp(1.5rem, 3vw, 4rem) clamp(2rem, 5vw, 5.5rem);
+                    }
+                }
+
+
+        .carousel-track {
+            display: flex;
+            align-items: flex-end;
+            gap: clamp(2rem, 6vw, 6rem);
+            transform: translateX(var(--carousel-offset, 0px));
+            will-change: transform;
+            max-width: 100%;
+        }
+
+        .carousel-item {
+            display: flex;
+            align-items: flex-end;
+            transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .image-stack {
+            position: relative;
+            display: inline-block;
+            transform-origin: center bottom;
+            transition: transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1);
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .laptop-stack {
+            height: clamp(340px, 30vw, 520px);
+            max-height: calc(100vh - 16rem);
+        }
+
+        .phone-stack {
+            height: clamp(260px, 24vw, 400px);
+            max-height: calc(100vh - 18rem);
+            width: auto;
+            transform: translateX(12px);
+        }
+
+        @media (max-width: 900px) {
+            .carousel-container,
+            .carousel-track {
+                gap: clamp(1.5rem, 5vw, 4rem);
+                padding-left: clamp(1.5rem, 5vw, 4rem);
+                padding-right: clamp(1.5rem, 5vw, 4rem);
+            }
+        }
+
+        .image-stack .carousel-image {
+            width: auto;
+            height: 100%;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: auto;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        .image-stack .carousel-image.dark-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .aiva-image { display: block; }
+
+        .image-stack.expanded {
+            position: fixed;
+            left: 50%;
+            top: 55%;
+            transform: translate(-50%, -50%) scale(2.4);
+            z-index: 20;
+        }
+
+        @media (max-width: 900px) {
+            .image-stack.expanded {
+                transform: translate(-50%, -50%) scale(2.1);
+            }
+        }
+
+        .home-page.zoom-enter .carousel-item.slide-left,
+        .home-page.zoom-enter .carousel-item.slide-right {
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        .home-page.zoom-enter .image-stack:not(.zoomed-active) {
+            transform: translate(var(--zoom-dx, 0px), var(--zoom-dy, 0px)) scale(var(--zoom-scale, 1));
+            transition: transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .home-page.zoom-enter .carousel-item.slide-left .image-stack:not(.zoomed-active) {
+            transform: translate(calc(var(--zoom-dx, 0px) - 120vw), var(--zoom-dy, 0px)) scale(var(--zoom-scale, 1));
+        }
+
+        .home-page.zoom-enter .carousel-item.slide-right .image-stack:not(.zoomed-active) {
+            transform: translate(calc(var(--zoom-dx, 0px) + 120vw), var(--zoom-dy, 0px)) scale(var(--zoom-scale, 1));
+        }
+
+        .home-page.zoom-enter.swiping .carousel-item.slide-left .image-stack:not(.zoomed-active),
+        .home-page.zoom-enter.swiping .carousel-item.slide-right .image-stack:not(.zoomed-active) {
+            transform: translate(var(--zoom-dx, 0px), var(--zoom-dy, 0px)) scale(var(--zoom-scale, 1));
+        }
+
+        .home-page.zoom-enter .carousel-item {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .home-page.zoom-enter .carousel-item.zoom-visible {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        @keyframes slide-back-left {
+            0% { transform: translateX(-120vw); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes slide-back-right {
+            0% { transform: translateX(120vw); }
+            100% { transform: translateX(0); }
+        }
+
+        .home-page.zoom-exit .carousel-item.slide-left {
+            transform: translateX(-120vw);
+            animation: slide-back-left var(--zoom-exit-duration) cubic-bezier(0.22, 0.9, 0.2, 1) both;
+        }
+
+        .home-page.zoom-exit .carousel-item.slide-right {
+            transform: translateX(120vw);
+            animation: slide-back-right var(--zoom-exit-duration) cubic-bezier(0.22, 0.9, 0.2, 1) both;
+        }
+
+        .home-page.zoom-exit .carousel-item {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto;
+            transition: none !important;
+        }
+
+        .home-page.zoomed .carousel-item {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .home-page.zoomed .carousel-item.zoom-visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Ignore slide transforms when measuring positions */
+        .no-slide .carousel-item.slide-left,
+        .no-slide .carousel-item.slide-right {
+            transform: none !important;
+        }
+
+        .image-stack.zoomed-active {
+            z-index: 30;
+            transition: transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .image-stack.zoomed-active .carousel-image {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: auto;
+            filter: none;
+        }
+
+        .phone-stack .carousel-image {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: auto;
+            filter: none;
+        }
+
+        .home-page.zoomed .name-section,
+        .home-page.zoomed .links-section,
+        .home-page.zoomed .theme-toggle {
+            opacity: 0;
+            filter: blur(10px);
+            transition: opacity 0.5s ease, filter 0.5s ease;
+        }
+
+        .home-page .name-section,
+        .home-page .links-section,
+        .home-page .theme-toggle {
+            transition: opacity var(--zoom-duration) ease,
+                        filter var(--zoom-duration) ease;
+        }
+
+        .timeline-carousel.zoomed {
+            transform: scale(1.08);
+        }
+
+        .project-page {
+            padding: var(--page-pad-y) var(--page-pad-x);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .project-layout {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-xl);
+            width: 100%;
+            max-width: 1200px;
+            justify-content: center;
+        }
+
+        .project-text {
+            flex: 0 1 40%;
+            min-width: 260px;
+        }
+
+        .project-text h2 {
+            font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+            font-weight: 500;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .project-text p {
+            margin: 0;
+            font-size: clamp(0.9rem, 1.1vw, 1.1rem);
+            color: var(--text-color);
+        }
+
+        .project-text .meta {
+            margin-top: 0.35rem;
+            color: var(--text-secondary);
+        }
+
+        .project-text .contributors {
+            margin-top: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            color: var(--text-secondary);
+        }
+
+        .project-image {
+            flex: 0 1 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .project-image img {
+            width: 100%;
+            max-width: var(--project-image-max);
+            min-width: var(--project-image-min);
+            height: auto;
+            object-fit: contain;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: auto;
+        }
+
+        /* About page (from original build) */
+        .page.about-page {
+            min-height: 100vh;
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            background-color: var(--about-glass-bg, rgba(255, 255, 255, 0.6));
+            backdrop-filter: blur(14px) saturate(120%);
+            -webkit-backdrop-filter: blur(14px) saturate(120%);
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: center;
+            transition: background-color 0.45s ease;
+        }
+
+        .page.about-page.active {
+            display: block;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .page.about-page .about-page-container {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .page.about-page.show-content .about-page-container {
+            opacity: 1;
+        }
+
+        .page.about-page.entering {
+            opacity: 1;
+            visibility: visible;
+            animation: puff-in-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        .page.about-page.exiting {
+            animation: puff-out-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .home-page.about-exit {
+            animation: slide-out-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        .home-page.about-enter {
+            animation: slide-in-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        .home-page.entry-puff {
+            animation: puff-in-center 0.7s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        .home-page.about-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .about-page-container {
+            display: flex;
+            min-height: 100vh;
+            padding: 6.5rem 12rem;
+            gap: clamp(2rem, 4vw, 4rem);
+            align-items: center;
+            justify-content: center;
+            transform-origin: center top;
+            background-color: var(--bg-color);
+            transition: background-color 0.45s ease, color 0.45s ease;
+        }
+
+        .about-flex-group {
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-start;
+            gap: 10px;
+            width: auto;
+            max-width: 1200px;
+            min-width: 0;
+            height: var(--about-image-height, auto);
+            align-items: stretch;
+            margin: 0 auto;
+        }
+
+        .about-left {
+            flex: 1 1 0;
+            width: var(--about-image-width, 100%);
+            max-width: var(--about-image-width, 420px);
+            min-width: 240px;
+            background-color: transparent;
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        transform 0.25s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .about-text-wrap {
+            width: 100%;
+            max-width: 100%;
+            transform-origin: top left;
+            transform: scale(var(--about-text-scale, 1));
+            transition: transform 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .about-right {
+            flex: 0 0 auto;
+            width: clamp(260px, 32vw, 520px);
+            height: clamp(220px, 28vw, 420px);
+            max-width: 520px;
+            min-width: 240px;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            opacity: 1;
+            visibility: visible;
+            transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            min-width: 0;
+            background-image: none;
+        }
+
+        .page.about-page.active .about-right {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: flex !important;
+        }
+
+        .page.about-page.active .about-image {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+
+        .about-paragraph {
+            font-size: clamp(0.95rem, 0.6vw + 0.8rem, 1.15rem);
+            line-height: var(--about-text-line-height, 1.65);
+            color: var(--text-color);
+            font-weight: 300;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: normal;
+            hyphens: auto;
+            flex: 1 1 auto;
+            margin-bottom: 1rem;
+            transition: color 0.45s ease;
+        }
+
+        .about-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            max-width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .email-link,
+        .about-link {
+            font-size: clamp(0.9rem, 0.5vw + 0.75rem, 1.1rem);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 300;
+            transition: color 0.45s ease;
+            display: inline-block;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: normal;
+            hyphens: auto;
+        }
+
+        .email-link:hover,
+        .about-link:hover {
+            color: var(--text-secondary-hover);
+        }
+
+        .about-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            min-width: 0;
+            min-height: 0;
+            object-fit: contain;
+            object-position: center;
+            filter: none;
+            display: block;
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+            z-index: 1;
+            background: transparent;
+        }
+
+        @keyframes puff-in-center {
+            0% {
+                transform: scale(1.08);
+                filter: blur(4px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                filter: blur(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes puff-out-center {
+            0% {
+                transform: scale(1);
+                filter: blur(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.08);
+                filter: blur(4px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slide-out-bck-center {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.94);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slide-in-bck-center {
+            0% {
+                transform: scale(0.94);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .project-layout {
+                flex-direction: column;
+                align-items: center;
+                text-align: left;
+            }
+
+            .project-text,
+            .project-image {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .top-controls {
+                top: 1.5rem;
+                left: 1.5rem;
+                right: 1.5rem;
+            }
+
+            .top-controls.show-back .back-button {
+                top: 1.5rem;
+                left: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-controls" id="top-controls">
+        <a href="#" class="back-button" id="back-button">‹</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+            <span class="sun-icon"></span>
+            <span class="moon-icon">☾</span>
+        </button>
+    </div>
+
+    <div class="page home-page active" id="home">
+        <div class="top-bar">
+            <div class="top-left">
+                <div class="name-section">
+                    <h1 class="name">Tyler Buchanan</h1>
+                    <p class="year">2026</p>
+                </div>
+            </div>
+            <div class="top-right">
+                <nav class="links-section">
+                    <a href="#" class="nav-link" id="about-link">About</a>
+                    <a href="https://github.com/Buchanz" target="_blank" class="nav-link">GitHub</a>
+                    <a href="https://www.linkedin.com/in/tyler-buchanan-b8bb29230" target="_blank" class="nav-link">LinkedIn</a>
+                </nav>
+            </div>
+        </div>
+
+        <div class="timeline-carousel">
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <div class="carousel-item" data-year="2025" data-project="landing">
+                        <div class="image-stack laptop-stack">
+                            <img src="Arceus-Landing-low.jpg" alt="Landing Page" class="carousel-image light-image" data-low="Arceus-Landing-low.jpg" data-hi="Arceus-Landing-hi.jpg" data-hi-png="Arceus-Landing@3x.png">
+                            <img src="Arceus-Dark-low.jpg" alt="Landing Page" class="carousel-image dark-image" data-low="Arceus-Dark-low.jpg" data-hi="Arceus-Dark-hi.jpg" data-hi-png="Arceus-Dark-4x.png">
+                        </div>
+                    </div>
+                    <div class="carousel-item" data-year="2025" data-project="aiva">
+                        <div class="image-stack phone-stack">
+                            <img src="Aiva-Light@3x.png?v=6" alt="Aiva Project" class="carousel-image aiva-image" data-light-low="Aiva-Light@3x.png?v=6" data-light-hi="Aiva-Light@3x.png?v=6" data-dark-low="Aiva-Dark@3a.png?v=6" data-dark-hi="Aiva-Dark@3a.png?v=6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page about-page" id="about">
+        <div class="about-page-container">
+            <div class="about-flex-group">
+                <div class="about-left">
+                    <div class="about-text-wrap">
+                        <p class="about-paragraph">
+                            Tyler Buchanan is an entrepreneur and interface designer based in Vancouver, British Columbia. His work can be seen in products from his work with Arceus building Aiva. He is currently working on new projects while extending his education. Outside of design, Tyler spends his free time mountain biking, snowboarding, rock climbing, and birding.
+                        </p>
+                        <div class="about-links">
+                            <a href="mailto:tyler.buchanan.a@gmail.com" class="email-link">Email</a>
+                            <a href="https://github.com/Buchanz" target="_blank" class="about-link">GitHub</a>
+                            <a href="https://www.linkedin.com/in/tyler-buchanan-b8bb29230" target="_blank" class="about-link">LinkedIn</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-right">
+                    <img src="about-image.png?v=19" alt="Tyler Buchanan" class="about-image" loading="eager">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Detail Overlay -->
+    <div class="project-detail-overlay" id="project-overlay">
+        <button class="corner-back" id="corner-back">‹</button>
+        <div class="project-content-container">
+            <div class="project-left">
+                <h2 class="project-title">Aiva</h2>
+                <p class="project-role">Co-Founder</p>
+                <p class="project-design">Interface Design</p>
+                <p class="project-company">Arceus</p>
+                <p class="project-year">2025</p>
+                <a href="https://arceus.ca" target="_blank" class="project-link-arrow">↗</a>
+                <div class="project-contributors">
+                    <span class="project-contributor">Tyler Buchanan</span>
+                </div>
+            </div>
+            <div class="project-right">
+                <div class="project-image-container">
+                    <img src="Aiva-Light@3x.png?v=6" alt="Project" class="project-image" id="project-image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mobileParams = new URLSearchParams(window.location.search);
+        const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
+        if (isMobileViewport && !mobileParams.has('force_v2')) {
+            window.location.replace('index.html?mobile=1');
+        }
+
+        const themeToggle = document.getElementById('theme-toggle');
+        const overlay = document.getElementById('project-overlay');
+        const projectImage = document.getElementById('project-image');
+        const projectTitle = document.querySelector('.project-title');
+        const projectRole = document.querySelector('.project-role');
+        const projectDesign = document.querySelector('.project-design');
+        const projectCompany = document.querySelector('.project-company');
+        const projectYear = document.querySelector('.project-year');
+        const projectLink = document.querySelector('.project-link-arrow');
+        const projectContributors = document.querySelector('.project-contributors');
+        const cornerBack = document.getElementById('corner-back');
+        const homePage = document.getElementById('home');
+        const aboutPage = document.getElementById('about');
+        const carousel = document.querySelector('.timeline-carousel');
+        const aboutLink = document.getElementById('about-link');
+        const backButton = document.getElementById('back-button');
+        const topControls = document.getElementById('top-controls');
+        const aboutLeft = document.querySelector('.about-left');
+        const aboutRight = document.querySelector('.about-right');
+        const aboutTextWrap = document.querySelector('.about-text-wrap');
+        let aboutTimer = null;
+        let homeTimer = null;
+
+        const projectData = {
+            landing: {
+                title: 'Landing Page',
+                role: 'Co-Founder',
+                design: 'Interface Design',
+                company: 'Arceus',
+                year: '2025',
+                link: 'https://arceus.ca',
+                contributors: ['Tyler Buchanan'],
+                image: 'Arceus-Landing-low.jpg'
+            },
+            aiva: {
+                title: 'Aiva',
+                role: 'Co-Founder',
+                design: 'Interface Design',
+                company: 'Arceus',
+                year: '2025',
+                link: 'https://arceus.ca',
+                contributors: ['Tyler Buchanan', 'Ivan Guo', 'Sam Gupta', 'Dujin Kim'],
+                image: 'Aiva-Light@3x.png?v=6'
+            }
+        };
+
+        function syncAboutHeights() {
+            if (!aboutLeft || !aboutRight || !aboutTextWrap) return;
+            const rightRect = aboutRight.getBoundingClientRect();
+            if (!rightRect.height) return;
+            aboutLeft.style.height = `${rightRect.height}px`;
+            const textRect = aboutTextWrap.getBoundingClientRect();
+            const scale = textRect.height ? Math.min(1, rightRect.height / textRect.height) : 1;
+            aboutTextWrap.style.setProperty('--about-text-scale', scale.toFixed(3));
+        }
+
+        function openAboutPage() {
+            if (isZoomed) {
+                endZoomPreview();
+            }
+            if (aboutTimer) clearTimeout(aboutTimer);
+            if (homeTimer) clearTimeout(homeTimer);
+            if (homePage) {
+                homePage.getAnimations().forEach(anim => anim.cancel());
+                homePage.classList.remove('entry-puff');
+                homePage.style.opacity = '';
+                homePage.style.filter = '';
+            }
+            homePage.classList.remove('about-enter');
+            homePage.classList.remove('about-hidden');
+            homePage.classList.add('about-exit');
+            aboutPage.classList.add('active');
+            aboutPage.classList.remove('show-content');
+            aboutPage.classList.remove('exiting');
+            aboutPage.classList.remove('entering');
+            topControls.classList.add('show-back');
+            requestAnimationFrame(syncAboutHeights);
+            homeTimer = setTimeout(() => {
+                homePage.classList.remove('about-exit');
+                homePage.classList.add('about-hidden');
+            }, 420);
+            aboutTimer = setTimeout(() => {
+                aboutPage.classList.add('entering');
+                aboutPage.classList.add('show-content');
+            }, 420);
+        }
+
+        function showHomePage() {
+            if (aboutTimer) clearTimeout(aboutTimer);
+            if (homeTimer) clearTimeout(homeTimer);
+            aboutPage.classList.remove('show-content');
+            aboutPage.classList.add('exiting');
+            aboutPage.classList.remove('entering');
+            homePage.classList.remove('about-hidden');
+            homePage.classList.remove('about-exit');
+            homePage.classList.add('about-enter');
+            topControls.classList.remove('show-back');
+            aboutTimer = setTimeout(() => {
+                aboutPage.classList.remove('active');
+                aboutPage.classList.remove('exiting');
+                aboutPage.classList.remove('entering');
+            }, 450);
+            homeTimer = setTimeout(() => {
+                homePage.classList.remove('about-enter');
+            }, 420);
+        }
+
+        if (aboutLink) {
+            aboutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                openAboutPage();
+            });
+        }
+
+        if (aboutPage) {
+            aboutPage.addEventListener('click', (e) => {
+                if (e.target.closest('a')) return;
+                showHomePage();
+            });
+        }
+
+        if (backButton) {
+            backButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                showHomePage();
+            });
+        }
+
+        function triggerEntryPuff() {
+            if (!homePage) return;
+            homePage.getAnimations().forEach(anim => anim.cancel());
+            homePage.style.opacity = '1';
+            homePage.style.filter = 'none';
+            homePage.animate([
+                { opacity: 0, transform: 'translateY(18px) scale(0.96)', filter: 'blur(4px)' },
+                { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' }
+            ], {
+                duration: 720,
+                easing: 'cubic-bezier(0.470, 0.000, 0.745, 0.715)',
+                fill: 'both'
+            });
+        }
+
+        window.addEventListener('load', () => {
+            syncAboutHeights();
+            triggerEntryPuff();
+        });
+
+        window.addEventListener('pageshow', () => {
+            setTimeout(() => {
+                triggerEntryPuff();
+            }, 60);
+        });
+        window.addEventListener('resize', syncAboutHeights);
+
+        let zoomedStack = null;
+        let zoomedItem = null;
+        let isZoomed = false;
+        let isZoomPreview = false;
+        let zoomBaseDx = 0;
+        let zoomBaseDy = 0;
+        let zoomBaseScale = 1;
+        let swipeDirection = 0;
+        const ZOOM_DURATION_MS = 800;
+        let zoomEnterTimer = null;
+        let zoomExitTimer = null;
+        let zoomExitLock = false;
+        let zoomHiResTimer = null;
+
+        function triggerZoomEnter() {
+            homePage.classList.add('zoom-enter');
+            if (zoomEnterTimer) clearTimeout(zoomEnterTimer);
+            zoomEnterTimer = setTimeout(() => {
+                homePage.classList.remove('zoom-enter');
+            }, ZOOM_DURATION_MS);
+        }
+
+        function getZoomExitMs() {
+            const raw = getComputedStyle(document.documentElement).getPropertyValue('--zoom-exit-duration').trim();
+            const value = parseFloat(raw);
+            if (!Number.isFinite(value)) return 1200;
+            if (raw.endsWith('ms')) return value;
+            if (raw.endsWith('s')) return value * 1000;
+            return 1200;
+        }
+
+        function triggerZoomExit() {
+            if (zoomedItem) {
+                setSlideClasses(zoomedItem);
+            }
+            homePage.classList.add('zoom-exit');
+            if (zoomExitTimer) clearTimeout(zoomExitTimer);
+            const exitMs = getZoomExitMs();
+            zoomExitLock = true;
+            setTimeout(() => {
+                zoomExitLock = false;
+            }, Math.min(60, Math.max(30, exitMs * 0.05)));
+            let finished = false;
+            const finishExit = () => {
+                if (finished) return;
+                finished = true;
+                homePage.classList.remove('zoom-exit');
+                clearSlideClasses();
+            };
+            const slideItems = Array.from(document.querySelectorAll('.carousel-item.slide-left, .carousel-item.slide-right'));
+            if (slideItems.length) {
+                let remaining = slideItems.length;
+                slideItems.forEach(item => {
+                    item.addEventListener('animationend', () => {
+                        remaining -= 1;
+                        if (remaining <= 0) finishExit();
+                    }, { once: true });
+                });
+            }
+            zoomExitTimer = setTimeout(finishExit, exitMs + 120);
+        }
+
+        function updateZoomVarsForAll() {
+            document.querySelectorAll('.image-stack').forEach(stack => {
+                const { dx, dy, scale, textWidth, gap } = getZoomTransform(stack, true);
+                const rect = stack.getBoundingClientRect();
+                const finalWidth = rect.width * scale;
+                const finalCenterX = rect.left + rect.width / 2 + dx;
+                const textLeft = finalCenterX - finalWidth / 2 - gap - textWidth - 140;
+                stack.style.setProperty('--zoom-dx', `${dx}px`);
+                stack.style.setProperty('--zoom-dy', `${dy}px`);
+                stack.style.setProperty('--zoom-scale', `${scale}`);
+                stack.dataset.zoomTextWidth = `${textWidth}`;
+                stack.dataset.zoomGap = `${gap}`;
+                stack.dataset.zoomTextLeft = `${textLeft}`;
+            });
+        }
+
+        function getStoredZoomTransform(stack) {
+            if (!stack) return null;
+            const dx = parseFloat(stack.style.getPropertyValue('--zoom-dx'));
+            const dy = parseFloat(stack.style.getPropertyValue('--zoom-dy'));
+            const scale = parseFloat(stack.style.getPropertyValue('--zoom-scale'));
+            const textWidth = parseFloat(stack.dataset.zoomTextWidth || '');
+            const gap = parseFloat(stack.dataset.zoomGap || '');
+            const textLeft = parseFloat(stack.dataset.zoomTextLeft || '');
+            if (Number.isFinite(dx) && Number.isFinite(dy) && Number.isFinite(scale)) {
+                return {
+                    dx,
+                    dy,
+                    scale,
+                    textWidth: Number.isFinite(textWidth) ? textWidth : Math.max(300, Math.min(500, window.innerWidth * 0.3125)),
+                    gap: Number.isFinite(gap) ? gap : 32,
+                    textLeft: Number.isFinite(textLeft) ? textLeft : null
+                };
+            }
+            return null;
+        }
+
+        function updateZoomVisible(currentItem, nextItem = null) {
+            document.querySelectorAll('.carousel-item').forEach(item => {
+                item.classList.remove('zoom-visible');
+                item.style.removeProperty('opacity');
+                item.style.removeProperty('visibility');
+                const stack = item.querySelector('.image-stack');
+                if (stack) {
+                    stack.style.removeProperty('opacity');
+                    stack.style.removeProperty('visibility');
+                }
+            });
+            if (currentItem) currentItem.classList.add('zoom-visible');
+            if (nextItem) nextItem.classList.add('zoom-visible');
+        }
+
+        function beginZoomPreview(stack, projectId) {
+            if (!stack || !projectId) return;
+            if (zoomEnterTimer) clearTimeout(zoomEnterTimer);
+            if (zoomExitTimer) clearTimeout(zoomExitTimer);
+            homePage.classList.remove('zoom-enter');
+            homePage.classList.remove('zoom-exit');
+            homePage.classList.remove('swiping');
+            clearSlideClasses();
+            zoomedStack = stack;
+            zoomedItem = stack.closest('.carousel-item');
+            setSlideClasses(zoomedItem);
+            swipeDirection = 0;
+            homePage.classList.add('zoomed');
+            carousel.classList.add('zoomed');
+            updateZoomVisible(zoomedItem);
+            triggerZoomEnter();
+            if (zoomHiResTimer) clearTimeout(zoomHiResTimer);
+            applyAivaThemeImages(false);
+            swapCarouselHiRes(false);
+            stack.classList.add('zoomed-active');
+            openProject(projectId);
+            updateZoomVarsForAll();
+            const rect = stack.getBoundingClientRect();
+            const stored = getStoredZoomTransform(stack);
+            const { dx, dy, scale, textWidth, gap, textLeft: storedTextLeft } = stored || getZoomTransform(stack);
+            const finalWidth = rect.width * scale;
+            const finalCenterX = rect.left + rect.width / 2 + dx;
+            const textLeft = storedTextLeft ?? (finalCenterX - finalWidth / 2 - gap - textWidth - 140);
+            document.documentElement.style.setProperty('--zoom-text-left', `${textLeft}px`);
+            zoomBaseDx = dx;
+            zoomBaseDy = dy;
+            zoomBaseScale = scale;
+            isZoomPreview = true;
+            zoomHiResTimer = setTimeout(() => {
+                if (isZoomPreview || isZoomed) {
+                    applyAivaThemeImages(true);
+                    swapCarouselHiRes(true);
+                }
+            }, Math.max(200, ZOOM_DURATION_MS - 120));
+        }
+
+        function endZoomPreview() {
+            triggerZoomExit();
+            homePage.classList.remove('zoomed');
+            homePage.classList.remove('swiping');
+            homePage.classList.remove('zoom-enter');
+            carousel.classList.remove('zoomed');
+            updateZoomVisible(null);
+            if (zoomedStack) {
+                zoomedStack.classList.remove('zoomed-active');
+                zoomedStack.style.transform = '';
+            }
+            zoomedStack = null;
+            zoomedItem = null;
+            isZoomPreview = false;
+            isZoomed = false;
+            overlay.classList.remove('active');
+            if (zoomHiResTimer) clearTimeout(zoomHiResTimer);
+            applyAivaThemeImages(false);
+            swapCarouselHiRes(false);
+            resetZoomDragState();
+            document.querySelectorAll('.image-stack').forEach(stack => {
+                stack.style.removeProperty('--zoom-dx');
+                stack.style.removeProperty('--zoom-dy');
+                stack.style.removeProperty('--zoom-scale');
+            });
+            // slide class cleanup handled by triggerZoomExit
+        }
+
+        let zoomedIndex = -1;
+
+        function setZoomedStack(stack, direction = 0, skipSlide = false, skipTransform = false) {
+            if (!stack) return;
+            const projectId = stack.closest('.carousel-item')?.getAttribute('data-project');
+            if (!projectId) return;
+            if (zoomedStack && zoomedStack !== stack) {
+                zoomedStack.classList.remove('zoomed-active');
+                zoomedStack.style.transform = '';
+            }
+            zoomedStack = stack;
+            zoomedItem = stack.closest('.carousel-item');
+            setSlideClasses(zoomedItem);
+            swipeDirection = 0;
+            updateZoomVisible(zoomedItem);
+            openProject(projectId);
+            updateZoomVarsForAll();
+            const rect = stack.getBoundingClientRect();
+            const stored = getStoredZoomTransform(stack);
+            const { dx, dy, scale, textWidth, gap, textLeft: storedTextLeft } = stored || getZoomTransform(stack);
+            const finalWidth = rect.width * scale;
+            const finalCenterX = rect.left + rect.width / 2 + dx;
+            const textLeft = storedTextLeft ?? (finalCenterX - finalWidth / 2 - gap - textWidth - 140);
+            const slideOffset = skipSlide ? 0 : (direction === 0 ? 0 : (direction > 0 ? window.innerWidth : -window.innerWidth));
+            document.documentElement.style.setProperty('--zoom-text-left', `${textLeft + slideOffset}px`);
+            zoomBaseDx = dx;
+            zoomBaseDy = dy;
+            zoomBaseScale = scale;
+            stack.classList.add('zoomed-active');
+            if (skipTransform) {
+                return;
+            }
+            stack.style.transition = 'none';
+            stack.style.transform = `translate(${dx + slideOffset}px, ${dy}px) scale(${scale})`;
+            const content = document.querySelector('.project-detail-overlay .project-content-container');
+            if (content) {
+                content.style.transition = 'none';
+                content.style.transform = `translateX(${slideOffset}px) translateY(-50%)`;
+            }
+            requestAnimationFrame(() => {
+                stack.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                stack.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+                if (content) {
+                    content.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                    content.style.transform = `translateX(0) translateY(-50%)`;
+                }
+                document.documentElement.style.setProperty('--zoom-text-left', `${textLeft}px`);
+            });
+            setTimeout(() => {
+                if (stack) stack.style.transition = '';
+            }, 820);
+        }
+
+        function swipeToStack(nextStack, direction) {
+            if (!zoomedStack || !nextStack || swipeTransitioning) return;
+            swipeTransitioning = true;
+            homePage.classList.add('swiping');
+            homePage.classList.remove('zoom-enter');
+            const durationMs = 800;
+            const exitOffset = direction > 0 ? -window.innerWidth : window.innerWidth;
+            const enterOffset = direction > 0 ? window.innerWidth : -window.innerWidth;
+            const content = document.querySelector('.project-detail-overlay .project-content-container');
+            updateZoomVisible(zoomedItem, nextStack.closest('.carousel-item'));
+
+            // animate current out
+            zoomedStack.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+            zoomedStack.style.transform = `translate(${zoomBaseDx + exitOffset}px, ${zoomBaseDy}px) scale(${zoomBaseScale})`;
+            if (content) {
+                content.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                content.style.transform = `translateX(${exitOffset}px) translateY(-50%)`;
+            }
+
+            // prepare next in
+            const projectId = nextStack.closest('.carousel-item')?.getAttribute('data-project');
+            const stored = getStoredZoomTransform(nextStack);
+            const { dx: nextDx, dy: nextDy, scale: nextScale, textWidth, gap, textLeft: storedTextLeft } = stored || getZoomTransform(nextStack, true);
+            const rect = nextStack.getBoundingClientRect();
+            const finalWidth = rect.width * nextScale;
+            const finalCenterX = rect.left + rect.width / 2 + nextDx;
+            const nextTextLeft = storedTextLeft ?? (finalCenterX - finalWidth / 2 - gap - textWidth - 140);
+
+            if (projectId) {
+                openProject(projectId);
+            }
+
+            nextStack.classList.add('zoomed-active');
+            nextStack.style.transition = 'none';
+            const nextItem = nextStack.closest('.carousel-item');
+            nextStack.style.transform = `translate(${nextDx + enterOffset}px, ${nextDy}px) scale(${nextScale})`;
+
+            document.documentElement.style.setProperty('--zoom-text-left', `${nextTextLeft + enterOffset}px`);
+            if (content) {
+                content.style.transition = 'none';
+                content.style.transform = `translateX(${enterOffset}px) translateY(-50%)`;
+            }
+
+            requestAnimationFrame(() => {
+                nextStack.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                nextStack.style.transform = `translate(${nextDx}px, ${nextDy}px) scale(${nextScale})`;
+                if (content) {
+                    content.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                    content.style.transform = `translateX(0) translateY(-50%)`;
+                }
+                document.documentElement.style.setProperty('--zoom-text-left', `${nextTextLeft}px`);
+            });
+
+            setTimeout(() => {
+                const prevStack = zoomedStack;
+                const nextItemFinal = nextStack.closest('.carousel-item');
+                zoomedStack = nextStack;
+                zoomedItem = nextItemFinal;
+                setSlideClasses(zoomedItem);
+                updateZoomVisible(zoomedItem);
+                if (prevStack && prevStack !== nextStack) {
+                    prevStack.classList.remove('zoomed-active');
+                    prevStack.style.transform = '';
+                }
+                zoomBaseDx = nextDx;
+                zoomBaseDy = nextDy;
+                zoomBaseScale = nextScale;
+                if (zoomedStack) {
+                    zoomedStack.style.transition = 'none';
+                    zoomedStack.style.transform = `translate(${zoomBaseDx}px, ${zoomBaseDy}px) scale(${zoomBaseScale})`;
+                    requestAnimationFrame(() => {
+                        if (zoomedStack) zoomedStack.style.transition = '';
+                    });
+                }
+                if (zoomHiResTimer) clearTimeout(zoomHiResTimer);
+                applyAivaThemeImages(true);
+                swapCarouselHiRes(true);
+                swipeTransitioning = false;
+                homePage.classList.remove('swiping');
+            }, durationMs);
+        }
+
+        function setSlideClasses(activeItem) {
+            const items = Array.from(document.querySelectorAll('.carousel-item'));
+            const activeIndex = items.indexOf(activeItem);
+            items.forEach((item, idx) => {
+                item.classList.remove('slide-left', 'slide-right');
+                if (idx < activeIndex) item.classList.add('slide-left');
+                if (idx > activeIndex) item.classList.add('slide-right');
+            });
+        }
+
+        function clearSlideClasses() {
+            document.querySelectorAll('.carousel-item').forEach(item => {
+                item.classList.remove('slide-left', 'slide-right');
+            });
+        }
+
+        function getZoomTransform(stack, ignoreSlideTransforms = false) {
+            const root = document.documentElement;
+            if (ignoreSlideTransforms) {
+                root.classList.add('no-slide');
+            }
+            const rect = stack.getBoundingClientRect();
+            if (ignoreSlideTransforms) {
+                root.classList.remove('no-slide');
+            }
+            const rootStyles = getComputedStyle(document.documentElement);
+            const isLaptop = stack.classList.contains('laptop-stack');
+            const scaleLaptop = parseFloat(rootStyles.getPropertyValue('--zoom-scale-laptop')) || 1.28;
+            const scalePhone = parseFloat(rootStyles.getPropertyValue('--zoom-scale-phone')) || 1.65;
+            const scale = isLaptop ? scaleLaptop : scalePhone;
+            const containerWidth = Math.min(1300, window.innerWidth * 0.86);
+            const textWidthFactor = parseFloat(rootStyles.getPropertyValue('--zoom-text-width-factor')) || 0.4;
+            const textMin = parseFloat(rootStyles.getPropertyValue('--zoom-text-min')) || 300;
+            const textMax = parseFloat(rootStyles.getPropertyValue('--zoom-text-max')) || 500;
+            const maxTextWidth = Math.max(textMin, Math.min(textMax, window.innerWidth * 0.3125));
+            const textWidth = Math.min(containerWidth * textWidthFactor, maxTextWidth);
+            const gap = parseFloat(rootStyles.getPropertyValue('--zoom-text-gap')) || 32;
+            const xOffset = parseFloat(rootStyles.getPropertyValue('--zoom-target-x-offset')) || 110;
+            const phoneShift = parseFloat(rootStyles.getPropertyValue('--zoom-target-x-phone-shift')) || 80;
+            const baseTargetX = (window.innerWidth / 2) + (textWidth + gap) / 2 - xOffset;
+            const targetX = isLaptop ? baseTargetX : baseTargetX - phoneShift;
+            const swipeAdjust = swipeDirection === 0 ? 0 : (swipeDirection > 0 ? 40 : -40);
+            const targetXAdjusted = targetX + swipeAdjust;
+            const bottomPadding = window.innerHeight - rect.bottom;
+            const baseTargetY = (window.innerHeight - bottomPadding) - (rect.height * scale) / 2;
+            const yLaptop = parseFloat(rootStyles.getPropertyValue('--zoom-target-y-laptop')) || 80;
+            const yPhone = parseFloat(rootStyles.getPropertyValue('--zoom-target-y-phone')) || 90;
+            const aivaOffset = parseFloat(rootStyles.getPropertyValue('--aiva-zoom-offset')) || yPhone;
+            const targetY = isLaptop ? (baseTargetY + yLaptop) : (baseTargetY + aivaOffset);
+            const currentCenterX = rect.left + rect.width / 2;
+            const currentCenterY = rect.top + rect.height / 2;
+            const dx = targetXAdjusted - currentCenterX;
+            const dy = targetY - currentCenterY;
+            return { dx, dy, scale, textWidth, gap };
+        }
+
+        function openProject(id) {
+            const data = projectData[id];
+            if (!data) return;
+            projectTitle.textContent = data.title;
+            projectRole.textContent = data.role;
+            projectDesign.textContent = data.design;
+            projectCompany.textContent = data.company;
+            projectYear.textContent = data.year;
+            projectLink.setAttribute('href', data.link);
+            projectContributors.innerHTML = data.contributors.map(name => `<span class="project-contributor">${name}</span>`).join('');
+            projectImage.setAttribute('src', data.image);
+            overlay.classList.add('active');
+        }
+
+        function closeProject() {
+            overlay.classList.remove('active');
+            document.querySelectorAll('.image-stack').forEach(stack => {
+                stack.style.removeProperty('--zoom-dx');
+                stack.style.removeProperty('--zoom-dy');
+                stack.style.removeProperty('--zoom-scale');
+            });
+            homePage.classList.remove('zoomed');
+            homePage.classList.remove('swiping');
+            carousel.classList.remove('zoomed');
+            clearSlideClasses();
+            updateZoomVisible(null);
+            if (zoomedStack) {
+                zoomedStack.classList.remove('zoomed-active');
+                zoomedStack.style.transform = '';
+            }
+            zoomedStack = null;
+            zoomedItem = null;
+            isZoomed = false;
+        }
+        const customCursor = document.createElement('div');
+        customCursor.className = 'custom-cursor';
+        document.body.appendChild(customCursor);
+        customCursor.style.opacity = '0';
+        customCursor.style.left = `${window.innerWidth / 2}px`;
+        customCursor.style.top = `${window.innerHeight / 2}px`;
+
+        let cursorX = 0;
+        let cursorY = 0;
+        let cursorRaf = null;
+        let cursorVisible = false;
+        function updateCursor() {
+            customCursor.style.left = `${cursorX}px`;
+            customCursor.style.top = `${cursorY}px`;
+            cursorRaf = null;
+        }
+
+        const showCursor = () => {
+            if (!cursorVisible) {
+                customCursor.style.opacity = '1';
+                cursorVisible = true;
+            }
+        };
+
+        const hideCursor = () => {
+            if (cursorVisible) {
+                customCursor.style.opacity = '0';
+                cursorVisible = false;
+            }
+        };
+
+        document.addEventListener('pointermove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            showCursor();
+            if (!cursorRaf) {
+                cursorRaf = requestAnimationFrame(updateCursor);
+            }
+        });
+
+        window.addEventListener('mouseleave', hideCursor);
+        document.addEventListener('mouseleave', hideCursor);
+        window.addEventListener('mouseout', (e) => {
+            if (!e.relatedTarget && !e.toElement) {
+                hideCursor();
+            }
+        });
+        window.addEventListener('mouseenter', showCursor);
+        window.addEventListener('blur', hideCursor);
+        window.addEventListener('focus', showCursor);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                hideCursor();
+            }
+        });
+
+        const hoverTargets = 'a, .back-button, .theme-toggle, .corner-back';
+        document.body.addEventListener('mouseover', (e) => {
+            if (e.target.closest(hoverTargets)) {
+                document.body.classList.add('cursor-small');
+            }
+        });
+
+        document.body.addEventListener('mouseout', (e) => {
+            if (e.target.closest(hoverTargets)) {
+                document.body.classList.remove('cursor-small');
+            }
+        });
+
+        function applyAivaThemeImages(useHiRes = false) {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const preferPng = false;
+            document.querySelectorAll('.aiva-image').forEach(img => {
+                const lightLow = img.getAttribute('data-light-low') || img.getAttribute('data-light') || img.getAttribute('src');
+                const lightHi = img.getAttribute('data-light-hi') || lightLow;
+                const lightHiPng = img.getAttribute('data-light-hi-png') || lightHi;
+                const darkLow = img.getAttribute('data-dark-low') || img.getAttribute('data-dark') || img.getAttribute('src');
+                const darkHi = img.getAttribute('data-dark-hi') || darkLow;
+                const darkHiPng = img.getAttribute('data-dark-hi-png') || darkHi;
+                const hiSrc = isDark ? (preferPng ? darkHiPng : darkHi) : (preferPng ? lightHiPng : lightHi);
+                const nextSrc = useHiRes ? hiSrc : (isDark ? darkLow : lightLow);
+                if (nextSrc && img.getAttribute('src') !== nextSrc) {
+                    img.setAttribute('src', nextSrc);
+                }
+            });
+        }
+
+        function swapCarouselHiRes(useHiRes = false) {
+            const preferPng = false;
+            document.querySelectorAll('.carousel-image[data-hi]').forEach(img => {
+                const low = img.getAttribute('data-low') || img.getAttribute('src');
+                const hi = img.getAttribute('data-hi') || low;
+                const hiPng = img.getAttribute('data-hi-png') || hi;
+                const nextSrc = useHiRes ? (preferPng ? hiPng : hi) : low;
+                if (nextSrc && img.getAttribute('src') !== nextSrc) {
+                    img.setAttribute('src', nextSrc);
+                }
+            });
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+            applyAivaThemeImages(isZoomed);
+            swapCarouselHiRes(isZoomed);
+            console.log('Theme:', document.documentElement.getAttribute('data-theme'));
+        });
+
+        applyAivaThemeImages();
+        swapCarouselHiRes(false);
+
+        function preloadHiResImages() {
+            const sources = new Set();
+            document.querySelectorAll('.aiva-image').forEach(img => {
+                const hi = img.getAttribute('data-light-hi');
+                const darkHi = img.getAttribute('data-dark-hi');
+                if (hi) sources.add(hi);
+                if (darkHi) sources.add(darkHi);
+            });
+            document.querySelectorAll('.carousel-image[data-hi]').forEach(img => {
+                const hi = img.getAttribute('data-hi');
+                if (hi) sources.add(hi);
+            });
+            sources.forEach(src => {
+                const image = new Image();
+                image.src = src;
+            });
+        }
+        preloadHiResImages();
+
+        // Carousel drag
+        const carouselContainer = document.querySelector('.carousel-container');
+        const carouselTrack = document.querySelector('.carousel-track');
+        let isDragging = false;
+        let pendingDrag = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let startOffset = 0;
+        let minOffset = 0;
+        let maxOffset = 0;
+        let hasUserDragged = false;
+        let didCarouselDrag = false;
+        let beginCarouselDrag = null;
+        let moveCarouselDrag = null;
+        let finishCarouselDrag = null;
+        if (carouselContainer && carouselTrack) {
+            const getOffset = () => {
+                const value = getComputedStyle(document.documentElement).getPropertyValue('--carousel-offset').trim();
+                return value ? parseFloat(value) : 0;
+            };
+
+            const setOffset = (value) => {
+                document.documentElement.style.setProperty('--carousel-offset', `${value}px`);
+            };
+
+            const updateBounds = () => {
+                const containerWidth = carouselContainer.clientWidth;
+                const trackWidth = carouselTrack.scrollWidth;
+                const edgePadding = Math.min(80, Math.max(24, containerWidth * 0.08));
+                const leftExtra = 20;
+                const rightExtra = -60;
+                const maxShift = Math.max(0, (trackWidth - containerWidth) / 2);
+                minOffset = -(maxShift + edgePadding + leftExtra);
+                maxOffset = (maxShift + edgePadding + rightExtra);
+            };
+
+            const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+            updateBounds();
+            window.addEventListener('resize', updateBounds);
+
+            beginCarouselDrag = (e, captureTarget = carouselContainer) => {
+                if (zoomDragging || isZoomed || swipeTransitioning) return false;
+                pendingDrag = true;
+                hasUserDragged = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                startOffset = getOffset();
+                try { captureTarget.setPointerCapture(e.pointerId); } catch (err) {}
+                return true;
+            };
+
+            moveCarouselDrag = (e) => {
+                if (!pendingDrag && !isDragging) return;
+                if (zoomDragging || isZoomed || swipeTransitioning) return;
+                const dx = e.clientX - dragStartX;
+                const dy = e.clientY - dragStartY;
+                if (!isDragging) {
+                    if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+                        isDragging = true;
+                        carouselContainer.classList.add('dragging');
+                    } else if (Math.abs(dy) > 6 && Math.abs(dy) > Math.abs(dx)) {
+                        pendingDrag = false;
+                        return;
+                    } else {
+                        return;
+                    }
+                }
+                const next = startOffset + dx;
+                const elastic = 0.35;
+                if (next < minOffset) {
+                    setOffset(minOffset + (next - minOffset) * elastic);
+                    return;
+                }
+                if (next > maxOffset) {
+                    setOffset(maxOffset + (next - maxOffset) * elastic);
+                    return;
+                }
+                setOffset(next);
+                updateYearByCenter();
+            };
+
+            finishCarouselDrag = (e) => {
+                if (!pendingDrag && !isDragging) return;
+                pendingDrag = false;
+                isDragging = false;
+                carouselContainer.classList.remove('dragging');
+                updateBounds();
+                const current = getOffset();
+                const snapped = clamp(current, minOffset, maxOffset);
+                if (snapped !== current) {
+                    carouselTrack.style.transition = 'transform 0.35s ease';
+                    setOffset(snapped);
+                    setTimeout(() => {
+                        carouselTrack.style.transition = '';
+                    }, 360);
+                }
+                try { carouselContainer.releasePointerCapture(e.pointerId); } catch (err) {}
+                updateYearByCenter();
+            };
+
+            carouselContainer.addEventListener('pointerdown', (e) => {
+                if (e.target.closest('.image-stack')) return;
+                if (!beginCarouselDrag(e)) return;
+                e.preventDefault();
+            });
+
+            carouselContainer.addEventListener('pointermove', moveCarouselDrag);
+            carouselContainer.addEventListener('pointerup', finishCarouselDrag);
+            carouselContainer.addEventListener('pointercancel', finishCarouselDrag);
+            carouselContainer.addEventListener('pointerleave', finishCarouselDrag);
+        }
+
+        // Drag up to zoom (per image or anywhere on home)
+        const DRAG_THRESHOLD = 60;
+        const enableVerticalDragZoom = false;
+        let activeStack = null;
+        let zoomDragging = false;
+        let zoomStartY = 0;
+        let zoomStartX = 0;
+        let startRect = null;
+        let zoomAnywherePending = false;
+        let zoomAnywhereMode = null;
+        let zoomAnywhereStack = null;
+        let zoomAnywhereStartX = 0;
+        let zoomAnywhereStartY = 0;
+        let zoomStackPending = false;
+        let zoomStackMode = null;
+        let zoomStackStartX = 0;
+        let zoomStackStartY = 0;
+        let zoomStackTarget = null;
+        let zoomStackIgnoreClick = false;
+        let zoomDragTarget = null;
+        let zoomPointerId = null;
+
+        function resetZoomDragState() {
+            if (activeStack && zoomPointerId !== null) {
+                try {
+                    if (activeStack.hasPointerCapture && activeStack.hasPointerCapture(zoomPointerId)) {
+                        activeStack.releasePointerCapture(zoomPointerId);
+                    }
+                } catch (err) {}
+            }
+            zoomDragging = false;
+            zoomStackPending = false;
+            zoomStackMode = null;
+            zoomStackTarget = null;
+            zoomStackIgnoreClick = false;
+            zoomDragTarget = null;
+            zoomPointerId = null;
+            activeStack = null;
+        }
+
+        function getClosestStack(x, y) {
+            const stacks = Array.from(document.querySelectorAll('.image-stack'));
+            let closest = null;
+            let best = Infinity;
+            stacks.forEach(stack => {
+                const rect = stack.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dx = cx - x;
+                const dy = cy - y;
+                const dist = dx * dx + dy * dy;
+                if (dist < best) {
+                    best = dist;
+                    closest = stack;
+                }
+            });
+            return closest;
+        }
+
+        function handleZoomPointerDown(e) {
+            const stack = e.target.closest('.image-stack');
+            if (!stack) return;
+            if (isDragging) return;
+            if (isZoomed) return;
+            if (swipeTransitioning) return;
+            if (zoomExitLock) return;
+            if (zoomAnywherePending) return;
+            e.preventDefault();
+            zoomAnywherePending = false;
+            zoomStackPending = true;
+            zoomStackMode = null;
+            zoomStackIgnoreClick = false;
+            zoomStackTarget = stack;
+            zoomStackStartX = e.clientX;
+            zoomStackStartY = e.clientY;
+            zoomDragTarget = getStoredZoomTransform(stack) || getZoomTransform(stack, true);
+        }
+
+        function handleZoomPointerMove(e) {
+            if (zoomStackMode === 'horizontal') {
+                if (moveCarouselDrag) {
+                    moveCarouselDrag(e);
+                }
+                return;
+            }
+            if (!zoomDragging) {
+                if (!zoomStackPending || !zoomStackTarget) return;
+                const dx = e.clientX - zoomStackStartX;
+                const dy = e.clientY - zoomStackStartY;
+                const absDx = Math.abs(dx);
+                const absDy = Math.abs(dy);
+                if (absDy > 8 && absDy > absDx * 1.2) {
+                    if (!enableVerticalDragZoom) {
+                        zoomStackPending = false;
+                        zoomStackIgnoreClick = true;
+                        return;
+                    }
+                    zoomStackMode = 'vertical';
+                    zoomDragging = true;
+                    activeStack = zoomStackTarget;
+                    zoomStartY = zoomStackStartY;
+                    zoomStartX = zoomStackStartX;
+                    startRect = activeStack.getBoundingClientRect();
+                    zoomPointerId = e.pointerId;
+                    try { activeStack.setPointerCapture(e.pointerId); } catch (err) {}
+                } else if (absDx > 8 && absDx > absDy * 1.2) {
+                    zoomStackMode = 'horizontal';
+                    zoomStackPending = false;
+                    zoomStackIgnoreClick = true;
+                    if (beginCarouselDrag && beginCarouselDrag(e, zoomStackTarget)) {
+                        e.preventDefault();
+                        moveCarouselDrag && moveCarouselDrag(e);
+                    }
+                    return;
+                } else {
+                    return;
+                }
+            }
+            if (!zoomDragging || !activeStack) return;
+            const dy = e.clientY - zoomStartY;
+            const dx = e.clientX - zoomStartX;
+            const up = Math.min(0, dy);
+            const dragAmount = Math.abs(up);
+            const progress = Math.min(1, dragAmount / 240);
+            const projectId = activeStack.closest('.carousel-item')?.getAttribute('data-project');
+            if (!isZoomPreview && progress > 0.05) {
+                beginZoomPreview(activeStack, projectId);
+            }
+            const target = zoomDragTarget || getStoredZoomTransform(activeStack) || getZoomTransform(activeStack, true);
+            const { dx: moveX, dy: moveY, scale: targetScale } = target;
+            const scale = 1 + (targetScale - 1) * progress;
+            activeStack.style.transform = `translate(${moveX * progress}px, ${moveY * progress}px) scale(${scale})`;
+            const content = document.querySelector('.project-detail-overlay .project-content-container');
+            if (content) {
+                content.style.transition = 'none';
+                content.style.opacity = `${progress}`;
+                content.style.filter = `blur(${(1 - progress) * 10}px)`;
+            }
+        }
+
+        function handleZoomPointerUp(e) {
+            if (zoomDragging && activeStack) {
+                const dy = e.clientY - zoomStartY;
+                const dragUp = -dy;
+                const progress = Math.min(1, Math.abs(Math.min(0, dy)) / 240);
+                const shouldExpand = progress >= 0.5;
+                if (shouldExpand) {
+                const projectId = activeStack.closest('.carousel-item')?.getAttribute('data-project');
+                if (projectId) {
+                    const target = zoomDragTarget || getStoredZoomTransform(activeStack) || getZoomTransform(activeStack, true);
+                    const { dx, dy, scale } = target;
+                    if (!isZoomPreview) {
+                        beginZoomPreview(activeStack, projectId);
+                    }
+                    isZoomed = true;
+                    activeStack.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                        activeStack.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+                        setTimeout(() => {
+                            activeStack.style.transition = '';
+                        }, 820);
+                    }
+                } else {
+                    const content = document.querySelector('.project-detail-overlay .project-content-container');
+                    if (content) {
+                        content.style.opacity = '0';
+                        content.style.filter = 'blur(10px)';
+                    }
+                    endZoomPreview();
+                }
+            }
+            if (zoomStackMode === 'horizontal' && finishCarouselDrag) {
+                finishCarouselDrag(e);
+            }
+            resetZoomDragState();
+        }
+
+        document.querySelectorAll('.image-stack').forEach(stack => {
+            stack.addEventListener('pointerdown', handleZoomPointerDown);
+            stack.addEventListener('pointermove', handleZoomPointerMove);
+            stack.addEventListener('pointerup', handleZoomPointerUp);
+            stack.addEventListener('pointercancel', handleZoomPointerUp);
+            stack.addEventListener('pointerleave', handleZoomPointerUp);
+
+            stack.addEventListener('click', (e) => {
+                if (zoomStackIgnoreClick) return;
+                if (isZoomed) {
+                    endZoomPreview();
+                    return;
+                }
+                if (zoomAnywherePending) return;
+                if (swipeTransitioning) return;
+                if (zoomExitLock) return;
+                const projectId = stack.closest('.carousel-item')?.getAttribute('data-project');
+                if (!projectId) return;
+                const { dx, dy, scale } = getZoomTransform(stack);
+                beginZoomPreview(stack, projectId);
+                isZoomed = true;
+                stack.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+            });
+        });
+
+        homePage.addEventListener('pointerdown', (e) => {
+            if (!enableVerticalDragZoom) return;
+            if (isZoomed || swipeTransitioning) return;
+            if (e.target.closest('a, button, .theme-toggle, .corner-back, .image-stack')) return;
+            if (zoomExitLock) return;
+            zoomAnywherePending = true;
+            zoomAnywhereMode = null;
+            zoomAnywhereStartX = e.clientX;
+            zoomAnywhereStartY = e.clientY;
+            zoomAnywhereStack = getClosestStack(e.clientX, e.clientY);
+        }, true);
+
+        homePage.addEventListener('pointermove', (e) => {
+            if (!enableVerticalDragZoom) return;
+            if (!zoomAnywherePending || isZoomed) return;
+            const dx = e.clientX - zoomAnywhereStartX;
+            const dy = e.clientY - zoomAnywhereStartY;
+            if (!zoomAnywhereMode) {
+                if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) {
+                    zoomAnywhereMode = 'vertical';
+                    try { homePage.setPointerCapture(e.pointerId); } catch (err) {}
+                } else if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+                    zoomAnywhereMode = 'horizontal';
+                    zoomAnywherePending = false;
+                    return;
+                } else {
+                    return;
+                }
+            }
+            if (zoomAnywhereMode !== 'vertical') return;
+            if (!zoomDragging) {
+                zoomDragging = true;
+                activeStack = zoomAnywhereStack;
+                zoomStartX = zoomAnywhereStartX;
+                zoomStartY = zoomAnywhereStartY;
+                startRect = activeStack?.getBoundingClientRect() || null;
+                try { carouselContainer.releasePointerCapture(e.pointerId); } catch (err) {}
+                isDragging = false;
+                pendingDrag = false;
+                carouselContainer.classList.remove('dragging');
+            }
+            handleZoomPointerMove(e);
+        }, true);
+
+        homePage.addEventListener('pointerup', (e) => {
+            if (!enableVerticalDragZoom) return;
+            if (!zoomAnywherePending) return;
+            if (zoomAnywhereMode === 'vertical' && zoomDragging) {
+                handleZoomPointerUp(e);
+            }
+            zoomAnywherePending = false;
+            zoomAnywhereMode = null;
+            zoomAnywhereStack = null;
+            try { homePage.releasePointerCapture(e.pointerId); } catch (err) {}
+        }, true);
+
+        homePage.addEventListener('pointercancel', (e) => {
+            if (!enableVerticalDragZoom) return;
+            zoomAnywherePending = false;
+            zoomAnywhereMode = null;
+            zoomAnywhereStack = null;
+            if (zoomDragging) handleZoomPointerUp(e);
+            try { homePage.releasePointerCapture(e.pointerId); } catch (err) {}
+        }, true);
+
+        window.addEventListener('blur', () => {
+            resetZoomDragState();
+        });
+
+        let zoomSwipeStartX = 0;
+        let zoomSwipeStartY = 0;
+        let zoomDragActive = false;
+        let swipeTransitioning = false;
+        let zoomGestureMode = null;
+
+        overlay.addEventListener('pointerdown', (e) => {
+            if (!isZoomed) return;
+            if (e.target.closest('a')) return;
+            homePage.classList.remove('zoom-enter');
+            homePage.classList.remove('zoom-exit');
+            zoomSwipeStartX = e.clientX;
+            zoomSwipeStartY = e.clientY;
+            zoomDragActive = true;
+            zoomGestureMode = null;
+            overlay.setPointerCapture(e.pointerId);
+        });
+
+        overlay.addEventListener('pointermove', (e) => {
+            if (!isZoomed || !zoomDragActive || !zoomedStack) return;
+            if (swipeTransitioning) return;
+            const dx = e.clientX - zoomSwipeStartX;
+            const dy = e.clientY - zoomSwipeStartY;
+            if (!zoomGestureMode) {
+                if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+                    zoomGestureMode = 'horizontal';
+                } else if (enableVerticalDragZoom && Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) {
+                    zoomGestureMode = 'vertical';
+                } else {
+                    return;
+                }
+            }
+            zoomedStack.style.transition = 'none';
+            const content = document.querySelector('.project-detail-overlay .project-content-container');
+            if (zoomGestureMode === 'horizontal') {
+                const items = Array.from(document.querySelectorAll('.carousel-item'));
+                const activeIndex = items.indexOf(zoomedItem);
+                const atStart = activeIndex <= 0;
+                const atEnd = activeIndex >= items.length - 1;
+                let easedDx = dx;
+                if ((atStart && dx > 0) || (atEnd && dx < 0)) {
+                    easedDx = dx * 0.35;
+                }
+                zoomedStack.style.transform = `translate(${zoomBaseDx + easedDx}px, ${zoomBaseDy}px) scale(${zoomBaseScale})`;
+                if (content) {
+                    content.style.transition = 'none';
+                    content.style.transform = `translateX(${easedDx}px) translateY(-50%)`;
+                }
+            } else if (enableVerticalDragZoom) {
+                const down = Math.max(0, dy);
+                const progress = Math.max(0, Math.min(1, 1 - down / 240));
+                const scale = 1 + (zoomBaseScale - 1) * progress;
+                const tx = zoomBaseDx * progress;
+                const ty = zoomBaseDy * progress;
+                zoomedStack.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+                if (content) {
+                    content.style.transition = 'none';
+                    content.style.transform = `translateX(0) translateY(-50%)`;
+                    content.style.opacity = `${progress}`;
+                    content.style.filter = `blur(${(1 - progress) * 10}px)`;
+                }
+            }
+        });
+
+        overlay.addEventListener('pointerup', (e) => {
+            if (!isZoomed) return;
+            zoomDragActive = false;
+            const dx = e.clientX - zoomSwipeStartX;
+            const dy = e.clientY - zoomSwipeStartY;
+            if (zoomGestureMode === 'horizontal' && Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy)) {
+                const items = Array.from(document.querySelectorAll('.carousel-item'));
+                const activeIndex = items.indexOf(zoomedItem);
+                const nextIndex = dx < 0 ? activeIndex + 1 : activeIndex - 1;
+                const nextItem = items[nextIndex];
+                if (nextItem) {
+                    const nextStack = nextItem.querySelector('.image-stack');
+                    if (nextStack) swipeToStack(nextStack, dx < 0 ? 1 : -1);
+                    zoomGestureMode = null;
+                    try { overlay.releasePointerCapture(e.pointerId); } catch (err) {}
+                    return;
+                }
+            }
+
+            if (enableVerticalDragZoom && zoomGestureMode === 'vertical') {
+                const downProgress = Math.min(1, Math.max(0, dy) / 240);
+                if (downProgress >= 0.5) {
+                    endZoomPreview();
+                    zoomGestureMode = null;
+                    try { overlay.releasePointerCapture(e.pointerId); } catch (err) {}
+                    return;
+                }
+            }
+
+            const moved = Math.abs(dx) > 6 || Math.abs(dy) > 6;
+            const isLink = e.target.closest('a');
+            if (isLink) return;
+            if (!moved) {
+                endZoomPreview();
+                return;
+            }
+
+            // Snap back to the zoomed layout if no swipe
+            if (zoomedStack) {
+                zoomedStack.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                zoomedStack.style.transform = `translate(${zoomBaseDx}px, ${zoomBaseDy}px) scale(${zoomBaseScale})`;
+            }
+            const content = document.querySelector('.project-detail-overlay .project-content-container');
+            if (content) {
+                content.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                content.style.transform = `translateX(0) translateY(-50%)`;
+                content.style.opacity = '1';
+                content.style.filter = 'blur(0px)';
+            }
+            zoomGestureMode = null;
+            try { overlay.releasePointerCapture(e.pointerId); } catch (err) {}
+        });
+
+        overlay.addEventListener('pointercancel', (e) => {
+            if (!isZoomed) return;
+            zoomDragActive = false;
+            zoomGestureMode = null;
+            if (zoomedStack) {
+                zoomedStack.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                zoomedStack.style.transform = `translate(${zoomBaseDx}px, ${zoomBaseDy}px) scale(${zoomBaseScale})`;
+            }
+            const content = document.querySelector('.project-detail-overlay .project-content-container');
+            if (content) {
+                content.style.transition = `transform var(--zoom-duration) cubic-bezier(0.16, 1, 0.3, 1)`;
+                content.style.transform = `translateX(0) translateY(-50%)`;
+            }
+            try { overlay.releasePointerCapture(e.pointerId); } catch (err) {}
+        });
+
+        if (cornerBack) {
+            cornerBack.addEventListener('click', (e) => {
+                e.preventDefault();
+                endZoomPreview();
+            });
+        }
+
+        function updateYearByCenter() {
+            const yearEl = document.querySelector('.name-section .year');
+            if (!yearEl || !carouselTrack) return;
+            if (!hasUserDragged) return;
+            const currentYear = new Date().getFullYear();
+            const offsetValue = getComputedStyle(document.documentElement).getPropertyValue('--carousel-offset').trim();
+            const offset = offsetValue ? parseFloat(offsetValue) : 0;
+            if (typeof minOffset === 'number' && offset <= minOffset + 5) {
+                yearEl.textContent = String(currentYear);
+                return;
+            }
+            const items = carouselTrack.querySelectorAll('.carousel-item');
+            if (!items.length) return;
+            const viewportCenter = window.innerWidth / 2;
+            let closest = null;
+            let closestDist = Infinity;
+            items.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                const center = rect.left + rect.width / 2;
+                const dist = Math.abs(center - viewportCenter);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = item;
+                }
+            });
+            if (closest) {
+                const year = closest.getAttribute('data-year');
+                if (year && yearEl.textContent !== year) {
+                    yearEl.textContent = year;
+                }
+            }
+        }
+
+        const currentYear = new Date().getFullYear();
+        const yearEl = document.querySelector('.name-section .year');
+        if (yearEl) yearEl.textContent = String(currentYear);
+    </script>
+</body>
+</html>
