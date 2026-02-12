@@ -1343,6 +1343,24 @@
             height: 100%;
         }
 
+        .carousel-image.light-image {
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .carousel-image.dark-image {
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        [data-theme="dark"] .carousel-image.light-image {
+            opacity: 0;
+        }
+
+        [data-theme="dark"] .carousel-image.dark-image {
+            opacity: 1;
+        }
+
         .aiva-image { display: block; }
 
         .image-stack.expanded {
@@ -1848,8 +1866,8 @@
                 <div class="carousel-track">
                     <div class="carousel-item" data-year="2025" data-project="landing">
                         <div class="image-stack laptop-stack">
-                            <img src="Arceus-Landing-low.jpg" alt="Landing Page" class="carousel-image light-image" data-low="Arceus-Landing-low.jpg" data-hi="Arceus-Landing-hi.jpg" data-hi-png="Arceus-Landing@3x.png">
-                            <img src="Arceus-Dark-low.jpg" alt="Landing Page" class="carousel-image dark-image" data-low="Arceus-Dark-low.jpg" data-hi="Arceus-Dark-hi.jpg" data-hi-png="Arceus-Dark-4x.png">
+                            <img src="Arceus-Dark-4x.png" alt="Landing Page" class="carousel-image light-image" data-low="Arceus-Dark-4x.png" data-hi="Arceus-Dark-4x.png" data-hi-png="Arceus-Dark-4x.png">
+                            <img src="Arceus-Dark-4x.png" alt="Landing Page" class="carousel-image dark-image" data-low="Arceus-Dark-4x.png" data-hi="Arceus-Dark-4x.png" data-hi-png="Arceus-Dark-4x.png">
                         </div>
                     </div>
                     <div class="carousel-item" data-year="2025" data-project="aiva">
@@ -1946,7 +1964,7 @@
                 year: '2025',
                 link: 'https://arceus.ca',
                 contributors: ['Tyler Buchanan'],
-                image: 'Arceus-Landing-low.jpg'
+                image: 'Arceus-Dark-4x.png'
             },
             aiva: {
                 title: 'Aiva',

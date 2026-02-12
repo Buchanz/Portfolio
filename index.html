@@ -7,6 +7,15 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Tyler Buchanan - Portfolio</title>
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (!isMobile && !params.has('mobile') && !params.has('force_mobile')) {
+                window.location.replace('index_v2.html');
+            }
+        })();
+    </script>
     <link rel="icon" type="image/png" sizes="32x32" href="MeMoji-Favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="MeMoji-Favicon.png">
     <link rel="apple-touch-icon" href="MeMoji-Favicon.png">
@@ -1745,6 +1754,17 @@
             pointer-events: auto;
         }
 
+        /* Ensure project back chevron stays top-left opposite the toggle */
+        body.project-active #project-back-button {
+            position: fixed;
+            top: 3rem;
+            left: 4rem;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            z-index: 10002;
+        }
+
         /* Keep back button aligned with toggle padding */
         .top-controls .back-button {
             margin-left: 0;
@@ -2322,15 +2342,15 @@
             }
 
             .project-landing .timeline-carousel.zoomed {
-                left: 50% !important;
-                top: 102vh !important;
-                transform: translateX(-50%) translateY(-50%) scale(4.0) !important;
+                left: 90% !important;
+                top: 96vh !important;
+                transform: translateX(-50%) translateY(-50%) scale(3.8) !important;
             }
 
             .project-aiva .timeline-carousel.zoomed {
-                left: 50% !important;
-                top: 102vh !important;
-                transform: translateX(-50%) translateY(-50%) scale(3.9) !important;
+                left: 14% !important;
+                top: 82vh !important;
+                transform: translateX(-50%) translateY(-50%) scale(2.75) !important;
             }
 
             .timeline-carousel.zoomed .carousel-image {
@@ -2342,7 +2362,7 @@
             /* Mobile: Project content container - positioned below zoomed image */
             .project-detail-overlay .project-content-container {
                 position: fixed !important;
-                top: calc(26vh + 280px) !important;
+                top: calc(26vh + 260px) !important;
                 left: 50% !important;
                 transform: translateX(-50%) translateX(55px) !important;
                 width: 100% !important;
@@ -2539,8 +2559,8 @@
             <div class="carousel-container" id="carousel-container">
                 <div class="carousel-item" data-project="landing">
                     <div class="image-stack laptop-stack">
-                        <img src="Macbook-Arceus-Website.png" alt="Landing Page" class="carousel-image light-image">
-                        <img src="Macbook-Arceus-Website.png" alt="Landing Page" class="carousel-image dark-image">
+                        <img src="Arceus-Landing@3x.png" alt="Landing Page" class="carousel-image light-image">
+                        <img src="Arceus-Landing@3x.png" alt="Landing Page" class="carousel-image dark-image">
                     </div>
                 </div>
                 <div class="carousel-item active" data-project="aiva">
@@ -2924,8 +2944,8 @@
                 year: '2025',
                 contributors: ['Tyler Buchanan'],
                 link: 'https://arceus.ca',
-                lightImage: 'Macbook-Arceus-Website.png',
-                darkImage: 'Macbook-Arceus-Website.png'
+                lightImage: 'Arceus-Landing@3x.png',
+                darkImage: 'Arceus-Landing@3x.png'
             }
         };
 
