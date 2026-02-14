@@ -7,6 +7,16 @@
     <link rel="icon" type="image/png" sizes="32x32" href="MeMoji-Favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="MeMoji-Favicon.png">
     <link rel="apple-touch-icon" href="MeMoji-Favicon.png">
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            document.documentElement.classList.add('preload-hide');
+            if (isMobile && !params.has('force_v2')) {
+                window.location.replace('index.html?mobile=1');
+            }
+        })();
+    </script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -1612,6 +1622,17 @@
             animation: puff-in-center 0.7s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
         }
 
+        html.preload-hide,
+        html.preload-hide body {
+            opacity: 0;
+        }
+
+        .entry-loading .home-page {
+            opacity: 0;
+            transform: translateY(18px) scale(0.96);
+            filter: blur(4px);
+        }
+
         .home-page.about-hidden {
             opacity: 0;
             pointer-events: none;
@@ -1710,16 +1731,16 @@
             word-break: normal;
             hyphens: auto;
             flex: 1 1 auto;
-            margin-bottom: 1rem;
+            margin-bottom: 0;
             transition: color 0.45s ease;
         }
 
         .about-links {
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            gap: 0;
             max-width: 100%;
-            margin-top: 0.5rem;
+            margin-top: 0;
         }
 
         .email-link,
@@ -1734,6 +1755,8 @@
             overflow-wrap: break-word;
             word-break: normal;
             hyphens: auto;
+            line-height: 1.02;
+            margin: 0;
         }
 
         .email-link:hover,
@@ -1757,6 +1780,34 @@
             position: relative;
             z-index: 1;
             background: transparent;
+        }
+
+        /* Smoother light/dark transition on About page */
+        .page.about-page,
+        .page.about-page .about-page-container,
+        .page.about-page .about-left,
+        .page.about-page .about-right,
+        .page.about-page .about-paragraph,
+        .page.about-page .about-link,
+        .page.about-page .email-link,
+        .page.about-page .about-image {
+            transition: background-color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        filter 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Web: tighten About text + links and center the block on the image edge */
+        @media (min-width: 769px) {
+            .about-left {
+                justify-content: center;
+                align-items: flex-end;
+            }
+
+            .about-text-wrap {
+                width: min(100%, 360px);
+                margin-left: auto;
+                text-align: left;
+            }
         }
 
         @keyframes puff-in-center {
@@ -1835,7 +1886,7 @@
         }
     </style>
 </head>
-<body>
+<body class="entry-loading">
     <div class="top-controls" id="top-controls">
         <a href="#" class="back-button" id="back-button">‹</a>
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
@@ -1886,7 +1937,7 @@
                 <div class="about-left">
                     <div class="about-text-wrap">
                         <p class="about-paragraph">
-                            Tyler Buchanan is an entrepreneur and interface designer based in Vancouver, British Columbia. His work can be seen in products from his work with Arceus building Aiva. He is currently working on new projects while extending his education. Outside of design, Tyler spends his free time mountain biking, snowboarding, rock climbing, and birding.
+                            Hello, my name is Tyler Buchanan. I am a Product Designer and Frontend Developer focused on crafting intuitive, visually compelling digital experiences, currently working at Arceus.
                         </p>
                         <div class="about-links">
                             <a href="mailto:tyler.buchanan.a@gmail.com" class="email-link">Email</a>
@@ -1896,7 +1947,7 @@
                     </div>
                 </div>
                 <div class="about-right">
-                    <img src="about-image.png?v=19" alt="Tyler Buchanan" class="about-image" loading="eager">
+                    <img src="about-image.jpg?v=23" alt="Tyler Buchanan" class="about-image" loading="eager">
                 </div>
             </div>
         </div>
@@ -1926,12 +1977,6 @@
     </div>
 
     <script>
-        const mobileParams = new URLSearchParams(window.location.search);
-        const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
-        if (isMobileViewport && !mobileParams.has('force_v2')) {
-            window.location.replace('index.html?mobile=1');
-        }
-
         const themeToggle = document.getElementById('theme-toggle');
         const overlay = document.getElementById('project-overlay');
         const projectImage = document.getElementById('project-image');
@@ -2063,8 +2108,8 @@
         function triggerEntryPuff() {
             if (!homePage) return;
             homePage.getAnimations().forEach(anim => anim.cancel());
-            homePage.style.opacity = '1';
-            homePage.style.filter = 'none';
+            document.body.classList.remove('entry-loading');
+            document.documentElement.classList.remove('preload-hide');
             homePage.animate([
                 { opacity: 0, transform: 'translateY(18px) scale(0.96)', filter: 'blur(4px)' },
                 { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' }
@@ -2075,12 +2120,13 @@
             });
         }
 
-        window.addEventListener('load', () => {
+        window.addEventListener('DOMContentLoaded', () => {
             syncAboutHeights();
             triggerEntryPuff();
         });
 
         window.addEventListener('pageshow', () => {
+            document.body.classList.add('entry-loading');
             setTimeout(() => {
                 triggerEntryPuff();
             }, 60);

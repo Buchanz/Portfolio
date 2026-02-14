@@ -103,7 +103,7 @@
             -webkit-backdrop-filter: blur(14px) saturate(120%);
             transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        
+
         #about-page.active {
             opacity: 1;
             visibility: visible;
@@ -112,10 +112,60 @@
             transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
-        /* About page exits - lifts up (reverse of entry) */
+        /* Match v2 about transitions */
+        #about-page.entering {
+            opacity: 1;
+            visibility: visible;
+            animation: puff-in-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
         #about-page.exiting {
+            animation: puff-out-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        .home-page.about-exit {
+            animation: slide-out-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        .home-page.about-enter {
+            animation: slide-in-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        /* Force v2-style about visibility + content reveal */
+        #about-page {
             opacity: 0;
-            transform: translateY(-30px) scale(1.1);
+            visibility: hidden;
+            transform: none;
+        }
+
+        #about-page.active {
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+        }
+
+        #about-page .about-page-container {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            animation: none !important;
+        }
+
+        #about-page.show-content .about-page-container {
+            opacity: 1;
+        }
+
+        #about-page.active .about-image,
+        #about-page.entering .about-image,
+        #about-page.show-content .about-image {
+            opacity: 1 !important;
+            visibility: visible !important;
+            filter: none !important;
+            -webkit-filter: none !important;
+        }
+
+        .home-page.about-hidden {
+            opacity: 0;
+            pointer-events: none;
         }
         
         /* Home page exits - shrinks (only for About page transitions) */
@@ -123,6 +173,17 @@
             opacity: 0;
             transform: scale(0.95);
             transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        /* Override default exit when using v2-style about transition */
+        .home-page.about-exit.exiting {
+            opacity: 1;
+            transform: scale(1);
+            animation: slide-out-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        .home-page.about-enter {
+            animation: slide-in-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
         }
         
         /* Home page exits differently for project page (no fade) */
@@ -1096,6 +1157,102 @@
                 transform: translateY(0) scale(1);
             }
         }
+
+        @keyframes puff-in-center {
+            0% {
+                transform: scale(1.08);
+                filter: blur(4px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                filter: blur(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes puff-out-center {
+            0% {
+                transform: scale(1);
+                filter: blur(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.08);
+                filter: blur(4px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slide-out-bck-center {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.94);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slide-in-bck-center {
+            0% {
+                transform: scale(0.94);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Final overrides to match v2 About transitions */
+        #about-page {
+            opacity: 0;
+            visibility: hidden;
+            transform: none !important;
+        }
+
+        #about-page.active {
+            opacity: 0;
+            visibility: visible;
+            transform: none !important;
+        }
+
+        #about-page.entering {
+            opacity: 1;
+            visibility: visible;
+            animation: puff-in-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        #about-page.exiting {
+            opacity: 1;
+            visibility: visible;
+            animation: puff-out-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        #about-page .about-page-container {
+            animation: none !important;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        #about-page.show-content .about-page-container {
+            opacity: 1;
+        }
+
+        .home-page.about-exit {
+            animation: slide-out-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        .home-page.about-enter {
+            animation: slide-in-bck-center 0.4s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        .home-page.about-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
         
         /* About Page */
         #about-page {
@@ -1704,7 +1861,14 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .entry-loading .home-page {
+            opacity: 0;
+            transform: translateY(18px) scale(0.96);
+            filter: blur(4px);
         }
         
         /* Smooth transitions for all elements that change with theme */
@@ -2038,6 +2202,21 @@
             transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             background: transparent;
         }
+
+        /* Smoother light/dark transition on About page (mobile + web) */
+        #about-page,
+        #about-page .about-page-container,
+        #about-page .about-left,
+        #about-page .about-right,
+        #about-page .about-paragraph,
+        #about-page .about-link,
+        #about-page .email-link,
+        #about-page .about-image {
+            transition: background-color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        filter 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        opacity 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
         
         /* Keep grayscale for desktop layout down to 570px; mobile overrides later */
         
@@ -2218,12 +2397,15 @@
                 align-items: center !important;
                 justify-content: center !important;
                 background: none !important;
+                border: none !important;
+                box-shadow: none !important;
                 opacity: 1 !important;
                 visibility: visible !important;
                 overflow: visible !important;
                 position: relative !important;
                 flex: none !important;
                 z-index: 2 !important;
+                background-color: transparent !important;
             }
 
             .about-left {
@@ -2248,7 +2430,7 @@
             .about-image {
                 width: 100% !important;
                 max-width: 100% !important;
-                height: 100% !important;
+                height: auto !important;
                 min-width: 0 !important;
                 min-height: 0 !important;
                 max-height: none !important;
@@ -2542,9 +2724,188 @@
                 padding: clamp(1.5rem, 3vw, 4rem) clamp(2rem, 5vw, 5.5rem);
             }
         }
+
+        /* === Final About + Mobile Transition Overrides (match v2) === */
+        #about-page {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transition: none !important;
+            transform: none !important;
+        }
+
+        #about-page.active {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transition: none !important;
+            transform: none !important;
+        }
+
+        #about-page.entering {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            animation: puff-in-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        #about-page.exiting {
+            opacity: 1 !important;
+            visibility: visible !important;
+            animation: puff-out-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        #about-page .about-page-container {
+            opacity: 0 !important;
+            transition: opacity 0.2s ease;
+            animation: none !important;
+        }
+
+        #about-page.active .about-page-container {
+            animation: none !important;
+            opacity: 1 !important;
+        }
+
+        #about-page.exiting .about-page-container {
+            opacity: 1 !important;
+        }
+
+        #about-page.show-content .about-page-container,
+        #about-page.entering .about-page-container {
+            opacity: 1 !important;
+        }
+
+        #about-page .about-image {
+            opacity: 1 !important;
+            visibility: visible !important;
+            filter: none !important;
+            -webkit-filter: none !important;
+            background: transparent !important;
+            background-image: none !important;
+        }
+
+        #about-page .about-right {
+            background-image: none !important;
+        }
+
+        #about-page.active .about-image,
+        #about-page.entering .about-image {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #about-page.exiting .about-image {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .top-controls.show-back,
+        body.about-active .top-controls {
+            pointer-events: auto !important;
+        }
+
+        .top-controls.show-back .about-back {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        body.about-active .top-controls .about-back {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        #about-page.entering ~ .top-controls .about-back {
+            animation: puff-in-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        #about-page.exiting ~ .top-controls .about-back {
+            animation: puff-out-center 0.45s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
+        }
+
+        .home-page.about-exit,
+        .home-page.about-enter {
+            transition: none !important;
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --mobile-control-top: clamp(1.2rem, 3vw, 1.7rem);
+                --mobile-control-side: clamp(1.4rem, 3.4vw, 2rem);
+            }
+
+            .top-controls {
+                align-items: flex-start !important;
+                pointer-events: auto !important;
+                top: var(--mobile-control-top) !important;
+                left: var(--mobile-control-side) !important;
+                right: var(--mobile-control-side) !important;
+            }
+
+            body.about-active .top-controls .about-back {
+                width: 1.4rem;
+                height: 1.4rem;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                line-height: 1 !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+
+            .top-controls .back-button {
+                transform: none !important;
+                align-self: flex-start !important;
+            }
+
+            .top-controls .about-back {
+                position: fixed !important;
+                top: var(--mobile-control-top) !important;
+                left: var(--mobile-control-side) !important;
+            }
+
+            .theme-toggle {
+                position: fixed !important;
+                top: var(--mobile-control-top) !important;
+                right: var(--mobile-control-side) !important;
+            }
+
+            #about-page .about-right,
+            #about-page.active .about-right {
+                background: transparent !important;
+                background-image: none !important;
+            }
+
+            #about-page .about-image {
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            /* Mobile about text spacing + weight */
+            .about-flex-group {
+                gap: clamp(0.45rem, 1.8vw, 0.8rem) !important;
+            }
+
+            .about-paragraph {
+                font-weight: 400 !important;
+                font-size: clamp(1.1rem, 2.8vw, 1.3rem) !important;
+                margin-bottom: clamp(0.35rem, 1.1vw, 0.65rem) !important;
+            }
+
+            .about-left {
+                margin-top: clamp(-0.35rem, -1vw, -0.15rem) !important;
+            }
+
+            .about-links {
+                gap: clamp(0.08rem, 0.4vw, 0.16rem) !important;
+                margin-top: clamp(0.08rem, 0.4vw, 0.18rem) !important;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="entry-loading">
     <!-- Home Page -->
     <div id="home-page" class="page home-page active">
         
@@ -2623,7 +2984,7 @@
                 <div class="about-left">
                     <div class="about-text-wrap">
                         <p class="about-paragraph">
-                            Tyler Buchanan is an entrepreneur and interface designer based in Vancouver, British Columbia. His work can be seen in products from his work with Arceus building Aiva. He is currently working on new projects while extending his education. Outside of design, Tyler spends his free time mountain biking, snowboarding, rock climbing, and birding.
+                            Hello, my name is Tyler Buchanan. I am a Product Designer and Frontend Developer focused on crafting intuitive, visually compelling digital experiences, currently working at Arceus.
                         </p>
                         <div class="about-links">
                             <a href="mailto:tyler.buchanan.a@gmail.com" class="email-link">Email</a>
@@ -2634,7 +2995,7 @@
                 </div>
                 
                 <div class="about-right">
-                    <img src="about-image.png?v=19" alt="Tyler Buchanan" class="about-image" loading="eager">
+                    <img src="about-image.jpg?v=23" alt="Tyler Buchanan" class="about-image" loading="eager">
                 </div>
             </div>
         </div>
@@ -2686,19 +3047,33 @@
             // Get all pages
             const pages = document.querySelectorAll('.page');
             const currentActive = document.querySelector('.page.active');
-            
+            const homePage = document.getElementById('home-page');
+            const aboutPage = document.getElementById('about-page');
+            const goingToAbout = pageId === 'about-page';
+            const leavingAbout = currentActive && currentActive.id === 'about-page' && pageId === 'home-page';
+
+            if (goingToAbout) {
+                openAboutPage();
+                return;
+            }
+            if (leavingAbout) {
+                showHomePage();
+                return;
+            }
+
             
             // Add exiting class to current page
             if (currentActive) {
                 currentActive.classList.add('exiting');
                 currentActive.classList.remove('active');
             }
-            
+
             // Special handling for transition from About to Home
             if (pageId === 'home-page' && currentActive && currentActive.id === 'about-page') {
                 const target = document.getElementById(pageId);
                 if (target) {
-                    target.classList.add('entering-from-about');
+                    target.classList.remove('entering-from-about');
+                    target.classList.add('about-enter');
                 }
             }
             
@@ -2715,6 +3090,8 @@
                 pages.forEach(page => {
                     page.classList.remove('exiting');
                     page.classList.remove('entering-from-about');
+                    page.classList.remove('about-enter');
+                    page.classList.remove('about-exit');
                 });
                 
                 // Add active class to target page
@@ -2740,8 +3117,119 @@
                     }
                     
                 }
+
             }, delay);
         }
+
+        let aboutTimer = null;
+        let homeTimer = null;
+
+        function openAboutPage() {
+            const homePage = document.getElementById('home-page');
+            const aboutPage = document.getElementById('about-page');
+            const topControls = document.querySelector('.top-controls');
+            if (aboutTimer) clearTimeout(aboutTimer);
+            if (homeTimer) clearTimeout(homeTimer);
+            if (homePage) {
+                homePage.getAnimations().forEach(anim => anim.cancel());
+                homePage.classList.remove('entry-puff');
+                homePage.style.opacity = '';
+                homePage.style.filter = '';
+                homePage.classList.remove('about-enter');
+                homePage.classList.remove('about-hidden');
+                homePage.classList.add('about-exit');
+            }
+            if (aboutPage) {
+                aboutPage.getAnimations().forEach(anim => anim.cancel());
+                aboutPage.classList.add('active');
+                aboutPage.classList.remove('exiting');
+                aboutPage.classList.add('entering');
+                aboutPage.classList.add('show-content');
+            }
+            if (topControls) {
+                topControls.classList.add('show-back');
+            }
+            document.body.classList.add('about-active');
+            document.body.classList.remove('home-active');
+            homeTimer = setTimeout(() => {
+                if (homePage) {
+                    homePage.classList.remove('about-exit');
+                    homePage.classList.add('about-hidden');
+                }
+            }, 420);
+        }
+
+        function showHomePage() {
+            const homePage = document.getElementById('home-page');
+            const aboutPage = document.getElementById('about-page');
+            const topControls = document.querySelector('.top-controls');
+            if (aboutTimer) clearTimeout(aboutTimer);
+            if (homeTimer) clearTimeout(homeTimer);
+            if (aboutPage) {
+                aboutPage.getAnimations().forEach(anim => anim.cancel());
+                aboutPage.classList.remove('entering');
+                requestAnimationFrame(() => {
+                    aboutPage.classList.add('exiting');
+                });
+            }
+            if (homePage) {
+                homePage.classList.remove('about-hidden');
+                homePage.classList.remove('about-exit');
+                homePage.classList.add('about-enter');
+            }
+            if (topControls) {
+                topControls.classList.remove('show-back');
+            }
+            document.body.classList.add('home-active');
+            aboutTimer = setTimeout(() => {
+                if (aboutPage) {
+                    aboutPage.classList.remove('show-content');
+                    aboutPage.classList.remove('active');
+                    aboutPage.classList.remove('exiting');
+                    aboutPage.classList.remove('entering');
+                }
+                document.body.classList.remove('about-active');
+            }, 450);
+            homeTimer = setTimeout(() => {
+                if (homePage) {
+                    homePage.classList.remove('about-enter');
+                }
+            }, 420);
+        }
+
+        function triggerEntryPuff() {
+            const homePage = document.getElementById('home-page');
+            if (!homePage) return;
+            homePage.getAnimations().forEach(anim => anim.cancel());
+            document.body.classList.remove('entry-loading');
+            homePage.animate([
+                { opacity: 0, transform: 'translateY(18px) scale(0.96)', filter: 'blur(4px)' },
+                { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' }
+            ], {
+                duration: 720,
+                easing: 'cubic-bezier(0.470, 0.000, 0.745, 0.715)',
+                fill: 'both'
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            triggerEntryPuff();
+            const aboutBack = document.querySelector('.about-back');
+            if (aboutBack) {
+                aboutBack.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showHomePage();
+                });
+            }
+        });
+
+        window.addEventListener('pageshow', () => {
+            document.body.classList.add('entry-loading');
+            setTimeout(() => {
+                triggerEntryPuff();
+            }, 60);
+        });
 
         // Align home carousel bottom padding to match project page image bottom padding (desktop only)
         function alignHomeCarouselToProjectBottom() {
@@ -3566,7 +4054,11 @@
                     e.stopPropagation();
                     const page = link.getAttribute('data-page') + '-page';
                     console.log('Navigating to page:', page);
-                    showPage(page);
+                    if (page === 'about-page') {
+                        openAboutPage();
+                    } else {
+                        showPage(page);
+                    }
                     return false;
                 }
                 
@@ -3582,12 +4074,19 @@
                 const aboutLink = e.target.closest('.about-link, .email-link');
                 
                 if (aboutPage && aboutPage.classList.contains('active')) {
-                    // If click is outside the text field (about-left) and image field (about-right), 
-                    // but not on back button or theme toggle, go back to home
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    if (isMobile) {
+                        // Mobile: only chevron should trigger back
+                        if (aboutBackButton || aboutThemeToggle || aboutLink) {
+                            return;
+                        }
+                        return;
+                    }
+                    // Desktop: click outside content to go back
                     if (!aboutLeft && !aboutRight && !aboutImage && !aboutParagraph && !aboutBackButton && !aboutThemeToggle && !aboutLinks && !aboutLink) {
                         e.preventDefault();
                         e.stopPropagation();
-                        showPage('home-page');
+                        showHomePage();
                         return false;
                     }
                 }
